@@ -1,4 +1,4 @@
-import { Data, Entity as EntityString } from "../types";
+import { Data } from "../types";
 import { EntityConfig, Condition } from "./types";
 import { Action } from "./actions";
 
@@ -15,8 +15,6 @@ export type Row =
   | SectionRow
   | TextRow
   | WeblinkRow;
-
-type Entity = EntityString | EntityConfig;
 
 export interface AttributeRow extends EntityConfig {
   /**
@@ -87,7 +85,7 @@ export interface ButtonsRow {
    * A list of entities to show. Each entry is either an entity ID or a map.
    * https://www.home-assistant.io/lovelace/entities/#entities
    */
-  entities: Entity[];
+  entities: ButtonEntityRow[];
 }
 
 export interface CallServiceRow extends EntityConfig {
@@ -104,10 +102,16 @@ export interface CallServiceRow extends EntityConfig {
   service: string;
 
   /**
-   * Data to pass into the service call.
-   * https://www.home-assistant.io/lovelace/entities/#action_name
+   * Service data to include. Note: Has been replaced by "data".
+   * https://www.home-assistant.io/lovelace/entities/#data
    */
   service_data?: Data;
+
+  /**
+   * Data to pass into the service call.
+   * https://www.home-assistant.io/lovelace/entities/#data
+   */
+  data?: Data;
 
   /**
    * Button label.
@@ -196,7 +200,7 @@ export interface DividerRow {
    * Style the element using CSS.
    * https://www.home-assistant.io/lovelace/entities/#style
    */
-  style: { [key: string]: any };
+  style?: { [key: string]: any };
 }
 
 interface EntityRow extends EntityConfig {
@@ -248,6 +252,20 @@ interface EntityRow extends EntityConfig {
    * https://www.home-assistant.io/lovelace/entities/#tap_action
    */
   tap_action?: Action;
+}
+
+interface ButtonEntityRow extends EntityRow {
+  /**
+   * If false, the icon is not shown.
+   * https://www.home-assistant.io/lovelace/entities/#show_icon
+   */
+  show_icon?: boolean;
+
+  /**
+   * If false, the button name is not shown.
+   * https://www.home-assistant.io/lovelace/entities/#show_name
+   */
+  show_name?: boolean;
 }
 
 export interface SectionRow {

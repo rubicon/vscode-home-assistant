@@ -17,15 +17,20 @@ import {
   SensorEntities,
   NumberEntity,
   SensorEntity,
+  CalendarEntity,
+  LegacySyntax,
 } from "../types";
 
 export type Trigger =
+  | CalendarTrigger
+  | ConversationTrigger
   | DeviceTrigger
   | EventTrigger
   | GeolocationTrigger
   | HomeAssistantTrigger
   | MqttTrigger
   | NumericStateTrigger
+  | PersistentNotificationTrigger
   | StateTrigger
   | SunTrigger
   | TagTrigger
@@ -57,16 +62,137 @@ type EventType =
   | "user_removed"
   | "zha_event";
 
+type AllowedMethods = "POST" | "PUT" | "GET" | "HEAD";
+type PersistentNotificationUpdateType = "added" | "updated" | "removed";
+
+interface CalendarTrigger {
+  /**
+   * Alias for the calendar trigger.
+   */
+  alias?: string;
+
+  /**
+   * Calendar trigger fires when a Calendar event starts or ends.
+   * https://www.home-assistant.io/docs/automation/trigger/#calendar-trigger
+   */
+  trigger?: "calendar";
+
+  /**
+   * Legacy syntax, use "trigger: calendar" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
+
+  /**
+   * Trigger on start or end of the calendar event.
+   * https://www.home-assistant.io/docs/automation/trigger/#calendar-trigger
+   */
+  event?: "start" | "end";
+
+  /**
+   * The entity ID to monitor the calendar events for.
+   * https://www.home-assistant.io/docs/automation/trigger/#calendar-trigger
+   */
+  entity_id: CalendarEntity;
+
+  /**
+   * Optional time offset to fire a set time before or after event start/end.
+   * https://www.home-assistant.io/docs/automation/trigger/#calendar-trigger
+   */
+  offset?: TimePeriod;
+
+  /**
+   * An personal identifier for this trigger, that is passed into the trigger
+   * variables when the automation triggers using this trigger.
+   * https://www.home-assistant.io/docs/automation/trigger/#calendar-trigger
+   */
+  id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
+}
+
+interface ConversationTrigger {
+  /**
+   * Alias for the conversation pattern trigger.
+   */
+  alias?: string;
+
+  /**
+   * With the sentence trigger, you can match a sentence from a voice assistant.
+   * https://www.home-assistant.io/docs/automation/trigger/#sentence-trigger
+   */
+  trigger?: "conversation";
+
+  /**
+   * Legacy syntax, use "trigger: conversation" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
+
+  /**
+   * A sentence or a list of sentences for this trigger.
+   * https://www.home-assistant.io/docs/automation/trigger/#sentence-trigger
+   */
+  command: string | string[];
+
+  /**
+   * An personal identifier for this trigger, that is passed into the trigger
+   * variables when the automation triggers using this trigger.
+   * https://www.home-assistant.io/docs/automation/trigger/#sentence-trigger
+   */
+  id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
+}
+
 /**
  * @TJS-additionalProperties true
  */
 interface DeviceTrigger {
   /**
+   * Alias for the device trigger.
+   */
+  alias?: string;
+
+  /**
    * Device triggers encompass a set of events that are defined by an integration.
    * In contrast to state triggers, device triggers are tied to a device and not necessarily an entity. To use a device trigger, set up an automation through the browser frontend.
    * https://www.home-assistant.io/docs/automation/trigger/#device-triggers
    */
-  platform: "device";
+  trigger?: "device";
+
+  /**
+   * Legacy syntax, use "trigger: device" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * The internal ID of the device to trigger on
@@ -86,14 +212,38 @@ interface DeviceTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#device-triggers
    */
   id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface EventTrigger {
   /**
+   * Alias for the event trigger.
+   */
+  alias?: string;
+
+  /**
    * Fires when an event is being received. Events are the raw building blocks of Home Assistant. You can match events on just the event name or also require specific event data to be present.
    * https://www.home-assistant.io/docs/automation/trigger/#event-trigger
    */
-  platform: "event";
+  trigger?: "event";
+
+  /**
+   * Legacy syntax, use "trigger: event" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * Additional event context that has to match before triggering.
@@ -119,14 +269,38 @@ interface EventTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#event-trigger
    */
   id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface GeolocationTrigger {
   /**
+   * Alias for the geolocation trigger.
+   */
+  alias?: string;
+
+  /**
    * Geolocation trigger fires when an entity is appearing in or disappearing from a zone.
    * https://www.home-assistant.io/docs/automation/trigger/#geolocation-trigger
    */
-  platform: "geo_location";
+  trigger?: "geo_location";
+
+  /**
+   * Legacy syntax, use "trigger: geo_location" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * Trigger when the entity leaves or enters the zone defined.
@@ -148,6 +322,14 @@ interface GeolocationTrigger {
   source: string;
 
   /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
+
+  /**
    * The zone to trigger on when a entity is appearing in or disappearing from.
    * https://www.home-assistant.io/docs/automation/trigger/#geolocation-trigger
    */
@@ -156,10 +338,26 @@ interface GeolocationTrigger {
 
 interface HomeAssistantTrigger {
   /**
+   * Alias for the home assistant trigger.
+   */
+  alias?: string;
+
+  /**
    * This trigger fires when Home Assistant has started up or going to shut down.
    * https://www.home-assistant.io/docs/automation/trigger/#home-assistant-trigger
    */
-  platform: "homeassistant";
+  trigger?: "homeassistant";
+
+  /**
+   * Legacy syntax, use "trigger: homeassistant" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * Specified the event to listen to: Either the Home Assistant start or shutdown event.
@@ -173,14 +371,38 @@ interface HomeAssistantTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#home-assistant-trigger
    */
   id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface MqttTrigger {
   /**
+   * Alias for the mqtt trigger.
+   */
+  alias?: string;
+
+  /**
    * Fires when a specific message is received on given MQTT topic
    * https://www.home-assistant.io/docs/automation/trigger/#mqtt-trigger
    */
-  platform: "mqtt";
+  trigger?: "mqtt";
+
+  /**
+   * Legacy syntax, use "trigger: mqtt" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * The default payload encoding is ‘utf-8’.
@@ -223,14 +445,38 @@ interface MqttTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#mqtt-trigger
    */
   value_template?: Template;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface NumericStateTrigger {
   /**
+   * Alias for the numeric state trigger.
+   */
+  alias?: string;
+
+  /**
    * Fires when numeric value of an entity’s state crosses a given threshold.
    * https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger
    */
-  platform: "numeric_state";
+  trigger?: "numeric_state";
+
+  /**
+   * Legacy syntax, use "trigger: numeric_state" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * The entity ID or list of entity IDs to monitor the numeric state for.
@@ -274,14 +520,81 @@ interface NumericStateTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger
    */
   attribute?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
+}
+
+interface PersistentNotificationTrigger {
+  /**
+   * Alias for the persistent notification trigger.
+   */
+  alias?: string;
+
+  /**
+   * Persistent notification triggers are fired when a persistent_notification is added or removed that matches the configuration options.
+   * https://www.home-assistant.io/docs/automation/trigger/#persistent-notification-trigger
+   */
+  trigger?: "persistent_notification";
+
+  /**
+   * Legacy syntax, use "trigger: persistent_notification" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
+
+  /**
+   * An personal identifier for this trigger, that is passed into the trigger
+   * variables when the automation triggers using this trigger.
+   * https://www.home-assistant.io/docs/automation/trigger/#persistent-notification-trigger
+   */
+  id?: string;
+
+  /**
+   * Define the type of persistent notification to trigger on.
+   * https://www.home-assistant.io/docs/automation/trigger/#persistent-notification-trigger
+   */
+  update_type?: PersistentNotificationUpdateType[];
+
+  /**
+   * The notification ID to trigger on.
+   * https://www.home-assistant.io/docs/automation/trigger/#persistent-notification-trigger
+   */
+  notification_id?: string;
 }
 
 interface StateTrigger {
   /**
+   * Alias for the state trigger.
+   */
+  alias?: string;
+
+  /**
    * This trigger fires when the state of any of given entities changes.
    * https://www.home-assistant.io/docs/automation/trigger/#state-trigger
    */
-  platform: "state";
+  trigger?: "state";
+
+  /**
+   * Legacy syntax, use "trigger: state" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * The entity ID or list of entity IDs to monitor the state for.
@@ -302,10 +615,22 @@ interface StateTrigger {
   from?: any | any[];
 
   /**
+   * The state the entity or entities NOT had before changing to its new state.
+   * https://www.home-assistant.io/docs/automation/trigger/#state-trigger
+   */
+  not_from?: any | any[];
+
+  /**
    * The state the entity or entities have changed to.
    * https://www.home-assistant.io/docs/automation/trigger/#state-trigger
    */
   to?: any | any[];
+
+  /**
+   * The state the entity or entities did NOT changed to.
+   * https://www.home-assistant.io/docs/automation/trigger/#state-trigger
+   */
+  not_to?: any | any[];
 
   /**
    * Use the value of a specific entity attribute to trigger on, instead of the entity state.
@@ -319,14 +644,38 @@ interface StateTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#state-trigger
    */
   id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface SunTrigger {
   /**
+   * Alias for the sun trigger.
+   */
+  alias?: string;
+
+  /**
    * This trigger fires when the sun is setting or rising.
    * https://www.home-assistant.io/docs/automation/trigger/#sun-trigger
    */
-  platform: "sun";
+  trigger?: "sun";
+
+  /**
+   * Legacy syntax, use "trigger: device" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * The event to fire on, either on sunset or sunrise.
@@ -346,14 +695,38 @@ interface SunTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#sun-trigger
    */
   offset?: TimePeriod;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface TemplateTrigger {
   /**
+   * Alias for the template trigger.
+   */
+  alias?: string;
+
+  /**
    * Template triggers work by evaluating a template on every state change for all of the recognized entities. The trigger will fire if the state change caused the template to render ‘true’.
    * https://www.home-assistant.io/docs/automation/trigger/#template-trigger
    */
-  platform: "template";
+  trigger?: "template";
+
+  /**
+   * Legacy syntax, use "trigger: template" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * An personal identifier for this trigger, that is passed into the trigger
@@ -373,14 +746,38 @@ interface TemplateTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#template-trigger
    */
   for?: TimePeriod | Template;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface TimeTrigger {
   /**
+   * Alias for the time trigger.
+   */
+  alias?: string;
+
+  /**
    * The time trigger is configured to fire once at a specific point in time each day.
    * https://www.home-assistant.io/docs/automation/trigger/#time-trigger
    */
-  platform: "time";
+  trigger?: "time";
+
+  /**
+   * Legacy syntax, use "trigger: time" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * Time of day to trigger on, in HH:MM:SS, 24 hours clock format. For example: "13:30:00"
@@ -397,14 +794,38 @@ interface TimeTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#time-trigger
    */
   id?: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface TimePatternTrigger {
   /**
+   * Alias for the time pattern trigger.
+   */
+  alias?: string;
+
+  /**
    * With the time pattern trigger, you can match if the hour, minute or second of the current time matches a specific value.
    * https://www.home-assistant.io/docs/automation/trigger/#time-pattern-trigger
    */
-  platform: "time_pattern";
+  trigger?: "time_pattern";
+
+  /**
+   * Legacy syntax, use "trigger: time_pattern" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * An personal identifier for this trigger, that is passed into the trigger
@@ -433,14 +854,38 @@ interface TimePatternTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#time-pattern-trigger
    */
   seconds?: string | number;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface WebhookTrigger {
   /**
+   * Alias for the webhook trigger.
+   */
+  alias?: string;
+
+  /**
    * Webhook trigger fires when a web request is made to the webhook endpoint.
    * https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger
    */
-  platform: "webhook";
+  trigger?: "webhook";
+
+  /**
+   * Legacy syntax, use "trigger: webhook" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * An personal identifier for this trigger, that is passed into the trigger
@@ -454,14 +899,50 @@ interface WebhookTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger
    */
   webhook_id: string;
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
+
+  /**
+   * Controls to only allow local requests to trigger the webhook.
+   * https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger
+   */
+  local_only?: boolean;
+
+  /**
+   * Controls to only allow requests with a valid API password to trigger the webhook.
+   * https://www.home-assistant.io/docs/automation/trigger/#webhook-trigger
+   */
+  allowed_methods: AllowedMethods[];
 }
 
 interface ZoneTrigger {
   /**
+   * Alias for the zone trigger.
+   */
+  alias?: string;
+
+  /**
    * Zone trigger fires when an entity is entering or leaving the zone. For zone automation to work, you need to have setup a device tracker platform that supports reporting GPS coordinates.
    * https://www.home-assistant.io/docs/automation/trigger/#zone-trigger
    */
-  platform: "zone";
+  trigger?: "zone";
+
+  /**
+   * Legacy syntax, use "trigger: zone" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * An personal identifier for this trigger, that is passed into the trigger
@@ -490,14 +971,38 @@ interface ZoneTrigger {
    * https://www.home-assistant.io/docs/automation/trigger/#zone-trigger
    */
   event: "enter" | "leave";
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }
 
 interface TagTrigger {
   /**
+   * Alias for the tag trigger.
+   */
+  alias?: string;
+
+  /**
    * This trigger fired when a tag is scanned.
    * https://www.home-assistant.io/docs/automation/trigger#tag-trigger
    */
-  platform: "tag";
+  trigger?: "tag";
+
+  /**
+   * Legacy syntax, use "trigger: tag" instead.
+   */
+  platform?: LegacySyntax;
+
+  /**
+   * Every individual trigger in an automation can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/automation/trigger/#disabling-a-trigger
+   */
+  enabled?: boolean;
 
   /**
    * An personal identifier for this trigger, that is passed into the trigger
@@ -517,4 +1022,12 @@ interface TagTrigger {
    * https://www.home-assistant.io/docs/automation/trigger#tag-trigger
    */
   device_id?: string | string[];
+
+  /**
+   * This allows you to define variables that will be set when the trigger fires.
+   * These can be used in the automation actions or conditions. Templates
+   * can be used in these variables.
+   * https://www.home-assistant.io/docs/automation/trigger#trigger-variables
+   */
+  variables?: Data;
 }

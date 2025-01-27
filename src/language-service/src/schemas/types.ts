@@ -20,6 +20,12 @@ export type Data = {
  */
 export type Deprecated = any | any[];
 
+/**
+ * @TJS-pattern LEGACY_SYNTAX^
+ * @items.pattern LEGACY_SYNTAX^
+ */
+export type LegacySyntax = any | any[];
+
 export type DeviceClasses =
   | DeviceClassesBinarySensor
   | DeviceClassesCover
@@ -33,6 +39,7 @@ export type DeviceClasses =
 export type DeviceClassesBinarySensor =
   | "battery"
   | "battery_charging"
+  | "carbon_monoxide"
   | "cold"
   | "connectivity"
   | "door"
@@ -50,9 +57,11 @@ export type DeviceClassesBinarySensor =
   | "power"
   | "presence"
   | "problem"
+  | "running"
   | "safety"
   | "smoke"
   | "sound"
+  | "tamper"
   | "update"
   | "vibration"
   | "window";
@@ -81,16 +90,27 @@ export type DeviceClassesMediaPlayer = "tv" | "speaker" | "receiver";
  * From: https://github.com/home-assistant/core/blob/dev/homeassistant/components/sensor/__init__.py
  */
 export type DeviceClassesSensor =
+  | "apparent_power"
   | "aqi"
+  | "atmospheric_pressure"
   | "battery"
   | "carbon_dioxide"
   | "carbon_monoxide"
   | "current"
+  | "data_rate"
+  | "data_size"
   | "date"
+  | "distance"
+  | "duration"
   | "energy"
+  | "energy_storage"
+  | "enum"
+  | "frequency"
   | "gas"
   | "humidity"
   | "illuminance"
+  | "irradiance"
+  | "moisture"
   | "monetary"
   | "nitrogen_dioxide"
   | "nitrogen_monoxide"
@@ -101,13 +121,26 @@ export type DeviceClassesSensor =
   | "pm25"
   | "power_factor"
   | "power"
+  | "precipitation_intensity"
+  | "precipitation"
   | "pressure"
+  | "reactive_power"
   | "signal_strength"
+  | "sound_pressure"
   | "sulphur_dioxide"
   | "temperature"
   | "timestamp"
   | "volatile_organic_compounds"
-  | "voltage";
+  | "volatile_organic_compounds_parts"
+  | "voltage"
+  | "volume"
+  | "volume_flow_rate"
+  | "volume_storage"
+  | "water"
+  | "weight"
+  | "wind_speed";
+
+export type EntityCategory = "config" | "diagnostic";
 
 /**
  * From: https://github.com/home-assistant/core/blob/dev/homeassistant/components/sensor/__init__.py
@@ -164,6 +197,17 @@ export type DeviceTrackerEntity = string;
 export type DeviceTrackerEntities = string | string[];
 
 /**
+ * @TJS-pattern ^calendar\.(?!_)[\da-z_]+(?<!_)$
+ */
+export type CalendarEntity = string;
+
+/**
+ * @TJS-pattern ^calendar\.(?!_)[\da-z_]+(?<!_)\s?(?:,\s?calendar\.(?!_)[\da-z_]+(?<!_))*$
+ * @items.pattern ^calendar\.(?!_)[\da-z_]+(?<!_)$
+ */
+export type CalendaraEntities = string | string[];
+
+/**
  * @TJS-pattern ^camera\.(?!_)[\da-z_]+(?<!_)$
  */
 export type CameraEntity = string;
@@ -184,6 +228,8 @@ export type ClimateEntity = string;
  * @items.pattern ^climate\.(?!_)[\da-z_]+(?<!_)$
  */
 export type ClimateEntities = string | string[];
+
+export type Floor = string;
 
 /**
  * @TJS-pattern ^geo_location\.(?!_)[\da-z_]+(?<!_)$
@@ -239,6 +285,8 @@ export type InputNumberEntity = string;
  * @items.pattern ^input_number\.(?!_)[\da-z_]+(?<!_)$
  */
 export type InputNumberEntities = string | string[];
+
+export type Label = string;
 
 /**
  * @TJS-pattern ^light\.(?!_)[\da-z_]+(?<!_)$
@@ -580,6 +628,320 @@ export type Currency =
   | "ZAR"
   | "ZMK"
   | "ZWL";
+
+export type LanguageTags =
+  | "af"
+  | "ar"
+  | "bg"
+  | "bn"
+  | "bs"
+  | "ca"
+  | "cs"
+  | "cy"
+  | "da"
+  | "de"
+  | "el"
+  | "en"
+  | "en-GB"
+  | "eo"
+  | "es"
+  | "es-419"
+  | "et"
+  | "eu"
+  | "fa"
+  | "fi"
+  | "fr"
+  | "fy"
+  | "gl"
+  | "gsw"
+  | "he"
+  | "hi"
+  | "hr"
+  | "hu"
+  | "hy"
+  | "id"
+  | "is"
+  | "it"
+  | "ja"
+  | "ka"
+  | "ko"
+  | "lb"
+  | "lt"
+  | "lv"
+  | "ml"
+  | "nb"
+  | "nl"
+  | "nn"
+  | "pl"
+  | "pt"
+  | "pt-BR"
+  | "ro"
+  | "ru"
+  | "sk"
+  | "sl"
+  | "sr"
+  | "sr-Latn"
+  | "sv"
+  | "ta"
+  | "te"
+  | "th"
+  | "tr"
+  | "uk"
+  | "ur"
+  | "vi"
+  | "zh-Hans"
+  | "zh-Hant";
+
+export type CountryTags =
+  | "AD"
+  | "AE"
+  | "AF"
+  | "AG"
+  | "AI"
+  | "AL"
+  | "AM"
+  | "AO"
+  | "AQ"
+  | "AR"
+  | "AS"
+  | "AT"
+  | "AU"
+  | "AW"
+  | "AX"
+  | "AZ"
+  | "BA"
+  | "BB"
+  | "BD"
+  | "BE"
+  | "BF"
+  | "BG"
+  | "BH"
+  | "BI"
+  | "BJ"
+  | "BL"
+  | "BM"
+  | "BN"
+  | "BO"
+  | "BQ"
+  | "BR"
+  | "BS"
+  | "BT"
+  | "BV"
+  | "BW"
+  | "BY"
+  | "BZ"
+  | "CA"
+  | "CC"
+  | "CD"
+  | "CF"
+  | "CG"
+  | "CH"
+  | "CI"
+  | "CK"
+  | "CL"
+  | "CM"
+  | "CN"
+  | "CO"
+  | "CR"
+  | "CU"
+  | "CV"
+  | "CW"
+  | "CX"
+  | "CY"
+  | "CZ"
+  | "DE"
+  | "DJ"
+  | "DK"
+  | "DM"
+  | "DO"
+  | "DZ"
+  | "EC"
+  | "EE"
+  | "EG"
+  | "EH"
+  | "ER"
+  | "ES"
+  | "ET"
+  | "FI"
+  | "FJ"
+  | "FK"
+  | "FM"
+  | "FO"
+  | "FR"
+  | "GA"
+  | "GB"
+  | "GD"
+  | "GE"
+  | "GF"
+  | "GG"
+  | "GH"
+  | "GI"
+  | "GL"
+  | "GM"
+  | "GN"
+  | "GP"
+  | "GQ"
+  | "GR"
+  | "GS"
+  | "GT"
+  | "GU"
+  | "GW"
+  | "GY"
+  | "HK"
+  | "HM"
+  | "HN"
+  | "HR"
+  | "HT"
+  | "HU"
+  | "ID"
+  | "IE"
+  | "IL"
+  | "IM"
+  | "IN"
+  | "IO"
+  | "IQ"
+  | "IR"
+  | "IS"
+  | "IT"
+  | "JE"
+  | "JM"
+  | "JO"
+  | "JP"
+  | "KE"
+  | "KG"
+  | "KH"
+  | "KI"
+  | "KM"
+  | "KN"
+  | "KP"
+  | "KR"
+  | "KW"
+  | "KY"
+  | "KZ"
+  | "LA"
+  | "LB"
+  | "LC"
+  | "LI"
+  | "LK"
+  | "LR"
+  | "LS"
+  | "LT"
+  | "LU"
+  | "LV"
+  | "LY"
+  | "MA"
+  | "MC"
+  | "MD"
+  | "ME"
+  | "MF"
+  | "MG"
+  | "MH"
+  | "MK"
+  | "ML"
+  | "MM"
+  | "MN"
+  | "MO"
+  | "MP"
+  | "MQ"
+  | "MR"
+  | "MS"
+  | "MT"
+  | "MU"
+  | "MV"
+  | "MW"
+  | "MX"
+  | "MY"
+  | "MZ"
+  | "NA"
+  | "NC"
+  | "NE"
+  | "NF"
+  | "NG"
+  | "NI"
+  | "NL"
+  | "NO"
+  | "NP"
+  | "NR"
+  | "NU"
+  | "NZ"
+  | "OM"
+  | "PA"
+  | "PE"
+  | "PF"
+  | "PG"
+  | "PH"
+  | "PK"
+  | "PL"
+  | "PM"
+  | "PN"
+  | "PR"
+  | "PS"
+  | "PT"
+  | "PW"
+  | "PY"
+  | "QA"
+  | "RE"
+  | "RO"
+  | "RS"
+  | "RU"
+  | "RW"
+  | "SA"
+  | "SB"
+  | "SC"
+  | "SD"
+  | "SE"
+  | "SG"
+  | "SH"
+  | "SI"
+  | "SJ"
+  | "SK"
+  | "SL"
+  | "SM"
+  | "SN"
+  | "SO"
+  | "SR"
+  | "SS"
+  | "ST"
+  | "SV"
+  | "SX"
+  | "SY"
+  | "SZ"
+  | "TC"
+  | "TD"
+  | "TF"
+  | "TG"
+  | "TH"
+  | "TJ"
+  | "TK"
+  | "TL"
+  | "TM"
+  | "TN"
+  | "TO"
+  | "TR"
+  | "TT"
+  | "TV"
+  | "TW"
+  | "TZ"
+  | "UA"
+  | "UG"
+  | "UM"
+  | "US"
+  | "UY"
+  | "UZ"
+  | "VA"
+  | "VC"
+  | "VE"
+  | "VG"
+  | "VI"
+  | "VN"
+  | "VU"
+  | "WF"
+  | "WS"
+  | "YE"
+  | "YT"
+  | "ZA"
+  | "ZM"
+  | "ZW";
 
 export type TimeZone =
   | "Africa/Abidjan"
@@ -1176,4 +1538,117 @@ export type TimeZone =
   | "Zulu";
 
 export type UnitSystem = "metric" | "imperial";
-export type TemperatureUnit = "C" | "F";
+export type TemperatureUnit = "°C" | "°F" | "K";
+export type PressureUnit =
+  | "Pa"
+  | "hPa"
+  | "kPa"
+  | "bar"
+  | "cbar"
+  | "mbar"
+  | "mmHg"
+  | "inHg"
+  | "psi";
+export type WindSpeedUnit = "m/s" | "km/h" | "mph" | "mm/d" | "in/d" | "in/h";
+export type VisibilityUnit =
+  | "km"
+  | "mi"
+  | "ft"
+  | "m"
+  | "cm"
+  | "mm"
+  | "in"
+  | "yd";
+export type PrecipitationUnit =
+  | "km"
+  | "mi"
+  | "ft"
+  | "m"
+  | "cm"
+  | "mm"
+  | "in"
+  | "yd";
+
+export type SupportedFeature =
+  | SupportedFeatureAlarmControlPanel
+  | SupportedFeatureCamera
+  | SupportedFeatureClimate
+  | SupportedFeatureCover
+  | SupportedFeatureFan
+  | SupportedFeatureLight
+  | SupportedFeatureLock
+  | SupportedFeatureUpdate
+  | SupportedFeatureVacuum
+  | SupportedFeatureWeather;
+
+export type SupportedFeatureAlarmControlPanel =
+  | "camera.AlarmControlPanelEntityFeature.ARM_HOME"
+  | "camera.AlarmControlPanelEntityFeature.ARM_AWAY"
+  | "camera.AlarmControlPanelEntityFeature.ARM_NIGHT"
+  | "camera.AlarmControlPanelEntityFeature.TRIGGER"
+  | "camera.AlarmControlPanelEntityFeature.ARM_CUSTOM_BYPASS"
+  | "camera.AlarmControlPanelEntityFeature.ARM_VACATION";
+
+export type SupportedFeatureCamera =
+  | "camera.CameraEntityFeature.ON_OFF"
+  | "camera.CameraEntityFeature.STREAM";
+
+export type SupportedFeatureClimate =
+  | "climate.ClimateEntityFeature.TARGET_TEMPERATURE"
+  | "climate.ClimateEntityFeature.TARGET_TEMPERATURE_RANGE"
+  | "climate.ClimateEntityFeature.TARGET_HUMIDITY"
+  | "climate.ClimateEntityFeature.FAN_MODE"
+  | "climate.ClimateEntityFeature.PRESET_MODE"
+  | "climate.ClimateEntityFeature.SWING_MODE"
+  | "climate.ClimateEntityFeature.AUX_HEAT";
+
+export type SupportedFeatureCover =
+  | "cover.CoverEntityFeature.OPEN"
+  | "cover.CoverEntityFeature.CLOSE"
+  | "cover.CoverEntityFeature.SET_POSITION"
+  | "cover.CoverEntityFeature.STOP"
+  | "cover.CoverEntityFeature.OPEN_TILT"
+  | "cover.CoverEntityFeature.CLOSE_TILT"
+  | "cover.CoverEntityFeature.STOP_TILT"
+  | "cover.CoverEntityFeature.SET_TILT_POSITION";
+
+export type SupportedFeatureFan =
+  | "fan.FanEntityFeature.SET_SPEED"
+  | "fan.FanEntityFeature.OSCILLATE"
+  | "fan.FanEntityFeature.DIRECTION"
+  | "fan.FanEntityFeature.PRESET_MODE";
+
+export type SupportedFeatureLight =
+  | "light.LightEntityFeature.EFFECT"
+  | "light.LightEntityFeature.FLASH"
+  | "light.LightEntityFeature.TRANSITION";
+
+export type SupportedFeatureLock = "lock.LockEntityFeature.OPEN";
+
+export type SupportedFeatureUpdate =
+  | "update.UpdateEntityFeature.INSTALL"
+  | "update.UpdateEntityFeature.SPECIFIC_VERSION"
+  | "update.UpdateEntityFeature.PROGRESS"
+  | "update.UpdateEntityFeature.BACKUP"
+  | "update.UpdateEntityFeature.RELEASE_NOTES";
+
+export type SupportedFeatureVacuum =
+  | "vacuum.VacuumEntityFeature.TURN_ON"
+  | "vacuum.VacuumEntityFeature.TURN_OFF"
+  | "vacuum.VacuumEntityFeature.PAUSE"
+  | "vacuum.VacuumEntityFeature.STOP"
+  | "vacuum.VacuumEntityFeature.RETURN_HOME"
+  | "vacuum.VacuumEntityFeature.FAN_SPEED"
+  | "vacuum.VacuumEntityFeature.BATTERY"
+  | "vacuum.VacuumEntityFeature.STATUS"
+  | "vacuum.VacuumEntityFeature.SEND_COMMAND"
+  | "vacuum.VacuumEntityFeature.LOCATE"
+  | "vacuum.VacuumEntityFeature.CLEAN_SPOT"
+  | "vacuum.VacuumEntityFeature.MAP"
+  | "vacuum.VacuumEntityFeature.STATE"
+  | "vacuum.VacuumEntityFeature.START";
+
+export type SupportedFeatureWeather =
+  | "weather.WeatherEntityFeature.FORECAST_DAILY"
+  | "weather.WeatherEntityFeature.FORECAST_HOURLY"
+  | "weather.WeatherEntityFeature.FORECAST_TWICE_DAILY";
