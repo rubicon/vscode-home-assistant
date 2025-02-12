@@ -7,7 +7,6 @@ https://github.com/home-assistant/home-assistant-js-websocket/blob/master/lib/so
 
 import type { Auth } from "home-assistant-js-websocket/dist/auth";
 
-// eslint-disable-next-line import/order
 import WebSocket = require("ws");
 
 const MSG_TYPE_AUTH_REQUIRED = "auth_required";
@@ -16,31 +15,35 @@ const MSG_TYPE_AUTH_OK = "auth_ok";
 const ERR_CANNOT_CONNECT = 1;
 const ERR_INVALID_AUTH = 2;
 
+interface HaWebSocket extends WebSocket {
+  haVersion: string;
+}
+
 export function createSocket(
   auth: Auth,
-  ignoreCertificates: boolean
+  ignoreCertificates: boolean,
 ): Promise<any> {
   // Convert from http:// -> ws://, https:// -> wss://
   const url = auth.wsUrl;
 
   console.log(
     "[Auth phase] Initializing WebSocket connection to Home Assistant",
-    url
+    url,
   );
 
   function connect(
     triesLeft: number,
     promResolve: (socket: any) => void,
-    promReject: (err: number) => void
+    promReject: (err: number) => void,
   ) {
     console.log(
       `[Auth Phase] Connecting to Home Assistant... Tries left: ${triesLeft}`,
-      url
+      url,
     );
 
     const socket = new WebSocket(url, {
       rejectUnauthorized: !ignoreCertificates,
-    });
+    }) as HaWebSocket;
 
     // If invalid auth, we will not try to reconnect.
     let invalidAuth = false;
@@ -77,7 +80,7 @@ export function createSocket(
     const closeOrError = (errorText?: string) => {
       if (errorText) {
         console.log(
-          `WebSocket Connection to Home Assistant closed with an error: ${errorText}`
+          `WebSocket Connection to Home Assistant closed with an error: ${errorText}`,
         );
       }
       if (invalidAuth) {
@@ -107,7 +110,7 @@ export function createSocket(
           JSON.stringify({
             type: "auth",
             access_token: auth.accessToken,
-          })
+          }),
         );
       } catch (err) {
         // Refresh token failed
@@ -125,7 +128,7 @@ export function createSocket(
 
       console.log(
         `[Auth phase] Received a message of type ${message.type}`,
-        message
+        message,
       );
 
       switch (message.type) {
@@ -139,6 +142,7 @@ export function createSocket(
           socket.removeEventListener("message", handleMessage);
           socket.removeEventListener("close", closeMessage);
           socket.removeEventListener("error", errorMessage);
+          socket.haVersion = message.ha_version;
           promResolve(socket);
           break;
 

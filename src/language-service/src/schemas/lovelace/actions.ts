@@ -2,42 +2,113 @@
  * Lovelace Actions
  * Source: https://github.com/home-assistant/frontend/blob/dev/src/data/lovelace.ts
  */
-import { Entity, Include } from "../types";
+import {
+  Area,
+  Entities,
+  Entity,
+  Floor,
+  Include,
+  Label,
+  LegacySyntax,
+} from "../types";
 
 export type Action =
   | CallServiceAction
   | CustomAction
+  | Include
   | MoreInfoAction
   | NavigateAction
   | NoneAction
+  | PerformActionAction
   | ToggleAction
-  | URLAction
-  | Include;
+  | URLAction;
 
 interface CallServiceAction {
   /**
-   * Action to call a Home Assistant service
+   * Legacy syntax. Use "perform-action" instead.
    * https://www.home-assistant.io/lovelace/actions/
    */
   action: "call-service";
 
   /**
-   * Service to call (e.g., media_player.media_play_pause)
+   * Legacy syntax. Use "perform_action" instead.
+   * https://www.home-assistant.io/lovelace/actions/#perform_action
+   */
+  service?: LegacySyntax;
+}
+
+interface PerformActionAction {
+  /**
+   * Perform an Home Assistant action.
+   * https://www.home-assistant.io/lovelace/actions/
+   */
+  action: "perform-action";
+
+  /**
+   * Legacy syntax. Use "perform_action" instead.
    * https://www.home-assistant.io/lovelace/actions/#service
    */
-  service: string;
+  service?: LegacySyntax;
+
+  /**
+   * Action to perform (e.g., media_player.media_play_pause)
+   * https://www.home-assistant.io/lovelace/actions/#perform_action
+   */
+  perform_action?: string;
+
+  /**
+   * Legacy syntax. Use "data" instead.
+   * https://www.home-assistant.io/lovelace/actions/#data
+   */
+  service_data?: LegacySyntax;
 
   /**
    * Service data to include (e.g., entity_id: media_player.bedroom).
-   * https://www.home-assistant.io/lovelace/actions/#service_data
+   * https://www.home-assistant.io/lovelace/actions/#data
    */
-  service_data?: ServiceData;
+  data?: ServiceData;
 
   /**
    * Present a confirmation dialog to confirm the action. See confirmation object below
    * https://www.home-assistant.io/lovelace/actions/#confirmation
    */
-  confirmation?: Confirmation;
+  confirmation?: Confirmation | boolean;
+
+  /**
+   * Defines the target (area(s), device(s) and entitie(s)) to perform this action on.
+   * https://www.home-assistant.io/lovelace/actions/#target
+   */
+  target?: {
+    /**
+     * The entity (or entities) to perform this action on.
+     * https://www.home-assistant.io/docs/scripts/perform-actions/
+     */
+    entity_id?: Entities | "all" | "none" | null;
+
+    /**
+     * The device (or devices) to perform this action on.
+     * https://www.home-assistant.io/docs/scripts/perform-actions/
+     */
+    device_id?: string | string[] | "none";
+
+    /**
+     * The area (or areas) to perform this action on.
+     * https://www.home-assistant.io/docs/scripts/perform-actions/
+     */
+    area_id?: Area | Area[] | "none";
+
+    /**
+     * The floor (or floors) to execute this service call on.
+     * https://www.home-assistant.io/docs/scripts/perform-actions/
+     */
+    floor_id?: Floor | Floor[] | "none";
+
+    /**
+     * The labels (or labels) to execute this service call on.
+     * https://www.home-assistant.io/docs/scripts/perform-actions/
+     */
+    label_id?: Label | Label[] | "none";
+  };
 }
 
 interface ServiceData {

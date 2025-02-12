@@ -5,10 +5,12 @@
 import {
   Area,
   Data,
-  Deprecated,
   Entities,
+  Floor,
   IncludeList,
   Integer,
+  Label,
+  LegacySyntax,
   SceneEntity,
   Template,
   TimePeriod,
@@ -21,9 +23,13 @@ export type Action =
   | DelayAction
   | DeviceAction
   | EventAction
+  | IfAction
+  | ParallelAction
   | RepeatAction
   | SceneAction
   | ServiceAction
+  | SequenceAction
+  | StopAction
   | WaitForTriggerAction
   | WaitTemplateAction
   | VariablesAction
@@ -34,6 +40,18 @@ export interface ChooseAction {
    * Alias for the choose action.
    */
   alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
 
   /**
    * This action allows you to select a sequence of other actions from a list of sequences.
@@ -55,6 +73,11 @@ export interface ChooseActionItem {
   alias?: string;
 
   /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+  /**
    * Only preform the sequence of actions if this condition/these conditions match.
    * https://www.home-assistant.io/docs/scripts/#choose-a-group-of-actions
    */
@@ -74,6 +97,18 @@ export interface DelayAction {
   alias?: string;
 
   /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
    * Delays are useful for temporarily suspending your script and start it at a later moment.
    * The time period to delay the executing of the current action sequence for.
    * https://www.home-assistant.io/docs/scripts/#delay
@@ -89,6 +124,18 @@ export interface DeviceAction {
    * Alias for the device action.
    */
   alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
 
   /**
    * The internal ID of the device to execute an action on.
@@ -110,6 +157,18 @@ export interface EventAction {
   alias?: string;
 
   /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
    * The event name to fire.
    * This action allows you to fire an event. Events can be used for many things. It could trigger an automation or indicate to another integration that something is happening.
    * https://www.home-assistant.io/docs/scripts/#fire-an-event
@@ -123,11 +182,72 @@ export interface EventAction {
   event_data?: Data;
 
   /**
-   * DEPRECATED as of Home Assistant 0.115.
    * You can use templates directly in the event_data parameter, replace "event_data_template" with just "event_data".
    * https://www.home-assistant.io/docs/scripts/#fire-an-event
    */
-  event_data_template?: Deprecated;
+  event_data_template?: LegacySyntax;
+}
+
+export interface IfAction {
+  /**
+   * Alias for the if action.
+   */
+  alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
+   * This action allows you to select a sequence of other actions from a list of sequences.
+   * https://www.home-assistant.io/docs/scripts/#if-then
+   */
+  if: Condition | Condition[] | IncludeList;
+
+  /**
+   * An optional default sequence can be included which will be run if none of the sequences from the list are run.
+   * https://www.home-assistant.io/docs/scripts/#if-then
+   */
+  then: Action | Action[] | IncludeList;
+
+  /**
+   * An optional default sequence can be included which will be run if none of the sequences from the list are run.
+   * https://www.home-assistant.io/docs/scripts/#if-then
+   */
+  else?: Action | Action[] | IncludeList;
+}
+
+export interface ParallelAction {
+  /**
+   * Alias for the parallel action.
+   */
+  alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
+   * The sequence of actions to run in parallel.
+   * https://www.home-assistant.io/docs/scripts/#parallelizing-actions
+   */
+  parallel: (Action | Action[] | IncludeList)[] | IncludeList;
 }
 
 export interface RepeatAction {
@@ -135,6 +255,18 @@ export interface RepeatAction {
    * Alias for the repeat action.
    */
   alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
 
   /**
    * This action allows you to repeat a sequence of other actions.
@@ -146,6 +278,12 @@ export interface RepeatAction {
      * https://www.home-assistant.io/docs/scripts/#counted-repeat
      */
     count?: Integer | Template;
+
+    /**
+     * This repeat form accepts a list of items to iterate over. The list of items can be a pre-defined list, or a list created by a template.
+     * https://www.home-assistant.io/docs/scripts/#for-each
+     */
+    for_each?: Data | Template | Template[];
 
     /**
      * The sequence of actions to be repeatedly performed in the script.
@@ -174,10 +312,52 @@ export interface SceneAction {
   alias?: string;
 
   /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
    * Activate a scene.
    * https://www.home-assistant.io/docs/scripts/#activate-a-scene
    */
   scene: SceneEntity;
+
+  /**
+   * Additional data for merely for use with the frontend. Has no functional effect.
+   */
+  metadata?: any;
+}
+
+export interface SequenceAction {
+  /**
+   * Alias for the sequence action.
+   */
+  alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
+   * The sequence of actions to run in serial
+   * https://www.home-assistant.io/docs/scripts/#grouping-actions
+   */
+  sequence: Action | Action[] | IncludeList;
 }
 
 export interface ServiceAction {
@@ -188,30 +368,45 @@ export interface ServiceAction {
   alias?: string;
 
   /**
-   * The most important action is the action to call a service.
-   * https://www.home-assistant.io/docs/scripts/service-calls/
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
    */
-  service?: string;
+  enabled?: boolean;
 
   /**
-   * DEPRECATED as of Home Assistant 0.115.
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
+   * Legacy syntax, use "action" instead.
+   */
+  service?: LegacySyntax;
+
+  /**
+   * The most important action is to call an action.
+   * https://www.home-assistant.io/docs/scripts/service-calls/
+   */
+  action?: string;
+
+  /**
    * You can use templates directly in the service parameter, replace "service_template" with just "service".
    * https://www.home-assistant.io/docs/scripts/service-calls/#use-templates-to-decide-which-service-to-call
    */
-  service_template?: Deprecated;
+  service_template?: LegacySyntax;
 
   /**
    * Specify other parameters beside the entity to target. For example, the light turn on service allows specifying the brightness.
    * https://www.home-assistant.io/docs/scripts/service-calls/#passing-data-to-the-service-call
    */
-  data?: Data;
+  data?: Data | Template;
 
   /**
-   * DEPRECATED as of Home Assistant 0.115.
    * You can use templates directly in the data parameter, replace "data_template" with just "data".
    * https://www.home-assistant.io/docs/scripts/service-calls/#use-templates-to-determine-the-attributes
    */
-  data_template?: Deprecated;
+  data_template?: LegacySyntax;
 
   /**
    * The entity (or entities) to execute this service call on.
@@ -242,8 +437,63 @@ export interface ServiceAction {
          * https://www.home-assistant.io/docs/scripts/service-calls
          */
         area_id?: Area | Area[] | "none";
+
+        /**
+         * The floor (or floors) to execute this service call on.
+         * https://www.home-assistant.io/docs/scripts/service-calls
+         */
+        floor_id?: Floor | Floor[] | "none";
+
+        /**
+         * The labels (or labels) to execute this service call on.
+         * https://www.home-assistant.io/docs/scripts/service-calls
+         */
+        label_id?: Label | Label[] | "none";
       }
     | Template;
+
+  /**
+   * Additional data for merely for use with the frontend. Has no functional effect.
+   */
+  metadata?: any;
+
+  /**
+   * Add a response_variable to pass a variable of key/value pairs back to an automation or script.
+   * https://www.home-assistant.io/docs/scripts/service-calls/#use-templates-to-handle-response-data
+   */
+  response_variable?: string;
+}
+
+export interface StopAction {
+  /**
+   * Stop call alias.
+   * https://www.home-assistant.io/docs/scripts/#stopping-a-script-sequence
+   */
+  alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Stop a automation or script sequence. Provide a text with a reason for stopping.
+   * https://www.home-assistant.io/docs/scripts/#stopping-a-script-sequence
+   */
+  stop: string | null;
+
+  /**
+   * Set to true, if we are stopping with an error / because of unexpected behavior
+   * https://www.home-assistant.io/docs/scripts/#stopping-a-script-sequence
+   */
+  error?: boolean;
+
+  /**
+   * Add a response_variable to pass a variable of key/value pairs back to an automation or script
+   * https://www.home-assistant.io/docs/scripts/#stopping-a-script-sequence
+   */
+  response_variable?: string;
 }
 
 export interface WaitForTriggerAction {
@@ -251,6 +501,18 @@ export interface WaitForTriggerAction {
    * Alias for the wait for trigger action.
    */
   alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
 
   /**
    * The trigger to wait for, before continuing execution of the script.
@@ -278,6 +540,18 @@ export interface WaitTemplateAction {
   alias?: string;
 
   /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
+
+  /**
    * Wait until some things are complete.
    * https://www.home-assistant.io/docs/scripts/#wait
    */
@@ -301,6 +575,18 @@ export interface VariablesAction {
    * Alias for the variables action.
    */
   alias?: string;
+
+  /**
+   * Every individual action can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/#disabling-an-action
+   */
+  enabled?: boolean;
+
+  /**
+   * Set it to true if you’d like to continue the action sequence, regardless of whether that action encounters an error.
+   * https://www.home-assistant.io/docs/scripts/#continuing-on-error
+   */
+  continue_on_error?: boolean;
 
   /**
    * The variable command allows you to set/override variables that will be accessible by templates in actions after it.

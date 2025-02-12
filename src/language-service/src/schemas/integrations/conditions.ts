@@ -3,7 +3,6 @@
  * Source: https://github.com/home-assistant/core/blob/dev/homeassistant/helpers/config_validation.py
  */
 import {
-  Deprecated,
   DeviceTrackerEntities,
   DynamicTemplate,
   Entities,
@@ -25,11 +24,15 @@ export type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
 export type Condition =
   | AndCondition
+  | AndShorthandCondition
   | DeviceCondition
   | DynamicTemplate
   | NotCondition
+  | NotShorthandCondition
   | NumericStateCondition
   | OrCondition
+  | OrShorthandCondition
+  | ShorthandCondition
   | StateCondition
   | SunCondition
   | TemplateCondition
@@ -37,11 +40,36 @@ export type Condition =
   | TriggerCondition
   | ZoneCondition;
 
+export interface ShorthandCondition {
+  /**
+   * Alias for the and condition.
+   */
+  alias?: string;
+
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+
+  /**
+   * The template condition has a shorthand notation that can be used to make your scripts and automations shorter.
+   * https://www.home-assistant.io/docs/scripts/conditions/#template-condition-shorthand-notation
+   */
+  condition: DynamicTemplate;
+}
+
 export interface AndCondition {
   /**
    * Alias for the and condition.
    */
   alias?: string;
+
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
 
   /**
    * Test multiple conditions in one condition statement. Passes if all embedded conditions are valid.
@@ -56,6 +84,24 @@ export interface AndCondition {
   conditions: Condition | Condition[] | IncludeList;
 }
 
+export interface AndShorthandCondition {
+  /**
+   * Alias for the and condition.
+   */
+  alias?: string;
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+
+  /**
+   * Test multiple conditions in one condition statement. Passes if all embedded conditions are valid.
+   * https://www.home-assistant.io/docs/scripts/conditions/#and-condition
+   */
+  and: Condition | Condition[] | IncludeList;
+}
+
 /**
  * @TJS-additionalProperties true
  */
@@ -64,6 +110,11 @@ export interface DeviceCondition {
    * Alias for the device condition.
    */
   alias?: string;
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
 
   /**
    * Device conditions encompass a set of properties that are defined by an integration.
@@ -87,6 +138,11 @@ export interface NotCondition {
    * Alias for the not condition.
    */
   alias?: string;
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
 
   /**
    * Test multiple conditions in one condition statement. Passes if all embedded conditions are not valid.
@@ -101,11 +157,34 @@ export interface NotCondition {
   conditions: Condition | Condition[] | IncludeList;
 }
 
+export interface NotShorthandCondition {
+  /**
+   * Alias for the not condition.
+   */
+  alias?: string;
+
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+  /**
+   * Test multiple conditions in one condition statement. Passes if all embedded conditions are not valid.
+   * https://www.home-assistant.io/docs/scripts/conditions/#not-condition
+   */
+  not: Condition | Condition[] | IncludeList;
+}
+
 export interface NumericStateCondition {
   /**
    * Alias for the numeric state condition.
    */
   alias?: string;
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
 
   /**
    * This type of condition attempts to parse the state of the specified entity as a number, and triggers if the value matches the thresholds.
@@ -149,6 +228,11 @@ export interface OrCondition {
    * Alias for the or condition.
    */
   alias?: string;
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
 
   /**
    * Test multiple conditions in one condition statement. Passes if any embedded condition is valid.
@@ -163,12 +247,35 @@ export interface OrCondition {
   conditions: Condition | Condition[] | IncludeList;
 }
 
+export interface OrShorthandCondition {
+  /**
+   * Alias for the or condition.
+   */
+  alias?: string;
+
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+  /**
+   * Test multiple conditions in one condition statement. Passes if any embedded condition is valid.
+   * https://www.home-assistant.io/docs/scripts/conditions/#or-condition
+   */
+  or: Condition | Condition[] | IncludeList;
+}
+
 export interface StateCondition {
   /**
    * Alias for the state condition.
    */
   alias?: string;
 
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
   /**
    * Tests if an entity (or entities) is in a specified state.
    * https://www.home-assistant.io/docs/scripts/conditions/#state-condition
@@ -194,16 +301,16 @@ export interface StateCondition {
   for?: TimePeriod | Template;
 
   /**
-   * DEPRECATED
-   * This option has no effect, please remove it.
-   */
-  from?: Deprecated;
-
-  /**
    * Use the value of a specific entity attribute to test against, instead of the entity state.
    * https://www.home-assistant.io/docs/scripts/conditions/#state-condition
    */
   attribute?: string;
+
+  /**
+   * How to match in case this condition has multiple entity listed: "all" all entities have to match the state, "any" if any of the entities match the state.
+   * https://www.home-assistant.io/docs/scripts/conditions/#state-condition
+   */
+  match?: "any" | "all";
 }
 
 export interface SunCondition {
@@ -212,6 +319,11 @@ export interface SunCondition {
    */
   alias?: string;
 
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
   /**
    * The sun state can be used to test if the sun has set or risen.
    * https://www.home-assistant.io/docs/scripts/conditions/#sun-condition
@@ -252,6 +364,11 @@ export interface TemplateCondition {
   alias?: string;
 
   /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+  /**
    * The template condition tests if the given template renders a value equal to true. This is achieved by having the template result in a true boolean expression or by having the template render ‘true’.
    * https://www.home-assistant.io/docs/scripts/conditions/#template-condition
    */
@@ -270,6 +387,11 @@ export interface TimeCondition {
    */
   alias?: string;
 
+  /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
   /**
    * The time condition can test if it is after a specified time, before a specified time or if it is a certain day of the week.
    * https://www.home-assistant.io/docs/scripts/conditions/#time-condition
@@ -308,6 +430,11 @@ export interface TriggerCondition {
   alias?: string;
 
   /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+  /**
    * The trigger condition can test if this automation was triggered by a specific trigger.
    * https://www.home-assistant.io/docs/scripts/conditions/#trigger-condition
    */
@@ -329,6 +456,12 @@ export interface ZoneCondition {
   condition: "zone";
 
   /**
+   * Every individual condition can be disabled, without removing it.
+   * https://www.home-assistant.io/docs/scripts/conditions/#disabling-a-condition
+   */
+  enabled?: boolean;
+
+  /**
    * The entity ID(s) of the device tracker(s).
    * https://www.home-assistant.io/docs/scripts/conditions/#zone-condition
    *
@@ -336,13 +469,6 @@ export interface ZoneCondition {
    * @items.pattern ^(device_tracker|person)\.(?!_)[\da-z_]+(?<!_)$
    */
   entity_id: DeviceTrackerEntities | PersonEntities;
-
-  /**
-   * DEPRECATED.
-   *
-   * This option has been deprecated, please remove it from your configuration.
-   */
-  event?: Deprecated;
 
   /**
    * The zone(s) conditionally check against for the given device tracker(s).

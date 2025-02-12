@@ -23,13 +23,14 @@ export class EntityIdCompletionContribution implements JSONWorkerContribution {
     "scene",
     "zone",
     "zones",
+    "group_members",
   ];
 
   constructor(private haConnection: IHaConnection) {}
 
   public collectDefaultCompletions(
     resource: string,
-    result: CompletionsCollector
+    result: CompletionsCollector,
   ): Thenable<any> {
     return Promise.resolve(null);
   }
@@ -40,7 +41,7 @@ export class EntityIdCompletionContribution implements JSONWorkerContribution {
     currentWord: string,
     addValue: boolean,
     isLast: boolean,
-    result: CompletionsCollector
+    result: CompletionsCollector,
   ): Promise<any> => {
     if (location.length < 2) {
       return;
@@ -50,7 +51,8 @@ export class EntityIdCompletionContribution implements JSONWorkerContribution {
     if (
       !EntityIdCompletionContribution.propertyMatches.some(
         (x) =>
-          x === currentNode || (!Number.isNaN(+currentNode) && x === parentNode)
+          x === currentNode ||
+          (!Number.isNaN(+currentNode) && x === parentNode),
       )
     ) {
       return;
@@ -63,11 +65,11 @@ export class EntityIdCompletionContribution implements JSONWorkerContribution {
     resource: string,
     location: JSONPath,
     currentKey: string,
-    result: CompletionsCollector
+    result: CompletionsCollector,
   ): Promise<any> => {
     if (
       !EntityIdCompletionContribution.propertyMatches.some(
-        (x) => x === currentKey
+        (x) => x === currentKey,
       )
     ) {
       return;
@@ -79,7 +81,7 @@ export class EntityIdCompletionContribution implements JSONWorkerContribution {
 
   public getInfoContribution(
     resource: string,
-    location: JSONPath
+    location: JSONPath,
   ): Thenable<MarkedString[]> {
     return Promise.resolve([]);
   }

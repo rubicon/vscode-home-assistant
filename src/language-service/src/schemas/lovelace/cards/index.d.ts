@@ -1,4 +1,5 @@
 export * as AlarmPanel from "./alarm_panel";
+export * as Area from "./area";
 export * as Button from "./button";
 export * as Calendar from "./calendar";
 export * as Conditional from "./conditional";
@@ -38,5 +39,6 @@ export * as Sensor from "./sensor";
 export * as ShoppingList from "./shopping_list";
 export * as StatisticsGraph from "./statistics_graph";
 export * as Thermostat from "./thermostat";
+export * as Tile from "./tile";
 export * as VerticalStack from "./vertical_stack";
 export * as WeatherForecast from "./weather_forecast";

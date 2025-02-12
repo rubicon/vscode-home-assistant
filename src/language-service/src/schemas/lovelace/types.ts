@@ -1,11 +1,11 @@
 import { Entity } from "../types";
-// eslint-disable-next-line import/extensions
 import * as cards from "./cards";
 
 export type CardsFile = Card | Card[];
 
 export type Card =
   | cards.AlarmPanel.Schema
+  | cards.Area.Schema
   | cards.Button.Schema
   | cards.Calendar.Schema
   | cards.Conditional.Schema
@@ -45,6 +45,7 @@ export type Card =
   | cards.ShoppingList.Schema
   | cards.StatisticsGraph.Schema
   | cards.Thermostat.Schema
+  | cards.Tile.Schema
   | cards.VerticalStack.Schema
   | cards.WeatherForecast.Schema;
 

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/extensions
 import * as integrations from "./integrations";
 import { IncludeList, IncludeNamed } from "./types";
 
@@ -59,6 +58,13 @@ export interface InternalIntegrations {
    * https://www.home-assistant.io/integrations/climate
    */
   climate?: integrations.Core.Climate.Schema | IncludeList;
+
+  /**
+   * The conversation integration allows you to converse with Home Assistant.
+   * https://www.home-assistant.io/integrations/conversation
+   */
+  conversation?: integrations.Core.Conversation.Schema | IncludeNamed | null;
+
   /**
    * The counter integration allows one to count occurrences fired by automations.
    * https://www.home-assistant.io/integrations/counter
@@ -108,10 +114,39 @@ export interface InternalIntegrations {
   input_boolean?: integrations.Core.InputBoolean.Schema | IncludeNamed | null;
 
   /**
+   * The Input Button helper integration allows you to define buttons that can be pressed via the user interface, and can be used to trigger things, like an automation.
+   * https://www.home-assistant.io/integrations/input_button
+   */
+  input_button?: integrations.Core.InputButton.Schema | IncludeNamed | null;
+
+  /**
+   * The input_datetime integration allows the user to define date and time values that can be controlled via the frontend and can be used within automations and templates.
+   * https://www.home-assistant.io/integrations/input_datetime
+   */
+  input_datetime?: integrations.Core.InputDatetime.Schema | IncludeNamed | null;
+
+  /**
    * The input_number integration allows the user to define values that can be controlled via the frontend and can be used within conditions of automation. The frontend can display a slider, or a numeric input box.
    * https://www.home-assistant.io/integrations/input_number
    */
   input_number?: integrations.Core.InputNumber.Schema | IncludeNamed | null;
+
+  /**
+   * The input_select integration allows the user to define a list of values that can be selected via the frontend and can be used within conditions of an automation.
+   * https://www.home-assistant.io/integrations/input_select
+   */
+  input_select?: integrations.Core.InputSelect.Schema | IncludeNamed | null;
+
+  /**
+   * The input_text integration allows the user to define values that can be controlled via the frontend and can be used within conditions of automation.
+   * https://www.home-assistant.io/integrations/input_text
+   */
+  input_text?: integrations.Core.InputText.Schema | IncludeNamed | null;
+
+  /**
+   * The intent script integration allows users to configure actions and responses to intents. Intents can be fired by any integration that supports it.
+   */
+  intent_script?: integrations.Core.IntentScript.Schema | IncludeNamed | null;
 
   /**
    * This integration allows you to track and control various light bulbs.
@@ -168,22 +203,16 @@ export interface InternalIntegrations {
   sensor?: integrations.Core.Sensor.Schema | IncludeList;
 
   /**
-   * The Spotify media player integration allows you to control Spotify playback from Home Assistant.
-   * https://www.home-assistant.io/integrations/spotify
-   */
-  spotify?: integrations.Core.Spotify.Schema;
-
-  /**
    * Keeps track which switches are in your environment, their state and allows you to control them.
    * https://www.home-assistant.io/integrations/switch
    */
   switch?: integrations.Core.Switch.Schema | IncludeList;
 
   /**
-   * The updater binary sensor will check daily for new releases.
-   * https://www.home-assistant.io/integrations/updater
+   * The template integration allows creating entities which derive their values from other data.
+   * https://www.home-assistant.io/integrations/template
    */
-  updater?: integrations.Core.Updater.Schema | null;
+  template?: integrations.Core.Template.Schema | IncludeList;
 
   /**
    * The vacuum integration enables the ability to control home cleaning robots within Home Assistant.
@@ -210,14 +239,6 @@ export interface CoreIntegrations {
   cloud?: integrations.Core.Cloud.Schema | IncludeNamed | null;
 
   /**
-   * DEPRECATED as of Home Assistant 0.113.0
-   *
-   * The Philips Hue integration allows you to control and monitor the lights and motion sensors connected to your Hue bridge.
-   * https://www.home-assistant.io/integrations/hue
-   */
-  hue?: integrations.Core.Hue.Schema | IncludeNamed;
-
-  /**
    * The KNX integration for Home Assistant allows you to connect to KNX/IP devices.
    * https://www.home-assistant.io/integrations/knx
    */
@@ -227,7 +248,7 @@ export interface CoreIntegrations {
    * MQTT (aka MQ Telemetry Transport) is a machine-to-machine or “Internet of Things” connectivity protocol on top of TCP/IP. It allows extremely lightweight publish/subscribe messaging transport.
    * https://www.home-assistant.io/integrations/mqtt/
    */
-  mqtt?: integrations.Core.MQTT.Schema;
+  mqtt?: integrations.Core.MQTT.Schema | IncludeNamed;
 
   /**
    * The mqtt_eventstream integration connects two Home Assistant instances via MQTT.

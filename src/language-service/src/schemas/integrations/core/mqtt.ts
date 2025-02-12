@@ -8,208 +8,301 @@ import {
   DeviceClassesBinarySensor,
   DeviceClassesCover,
   DeviceClassesSensor,
+  IncludeList,
   Integer,
-  Port,
   PositiveInteger,
   StateClassesSensor,
   Template,
 } from "../../types";
-import { PlatformSchema } from "../platform";
 
 export type Domain = "mqtt";
 type QOS = 0 | 1 | 2;
 type AvailabilityMode = "all" | "any" | "latest";
-
-export interface Schema {
+type Availability = {
   /**
-   * Birth Message
-   * https://www.home-assistant.io/docs/mqtt/birth_will/#birth_message
+   * The MQTT topic subscribed to receive availability (online/offline) updates.
    */
-  birth_message?: {
-    /**
-     * The MQTT topic to publish the message.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#topic
-     */
-    topic?: string;
-
-    /**
-     * The message content.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#payload
-     */
-    payload?: string;
-
-    /**
-     * The maximum QoS level of the topic.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#qos
-     */
-    qos?: QOS;
-
-    /**
-     * If the published message should have the retain flag on or not.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#retain
-     */
-    retain?: boolean;
-  };
+  topic: string;
 
   /**
-   * The IP address or hostname of your MQTT broker, e.g., 192.168.1.32.
-   * https://www.home-assistant.io/docs/mqtt/broker#broker
+   * The payload that represents the available state.
    */
-  broker?: string;
+  payload_available?: string;
 
   /**
-   * Path to the certificate file, e.g., /ssl/server.crt.
-   * https://www.home-assistant.io/docs/mqtt/broker#certificate
+   * The payload that represents the unavailable state.
    */
-  certificate?: string;
+  payload_not_available?: string;
 
   /**
-   * Client certificate, e.g., /home/user/owntracks/cookie.crt.
-   * https://www.home-assistant.io/docs/mqtt/certificate/#client_cert
+   * Defines a template to extract the value for payload_available and payload_not_available.
    */
-  client_cert?: string;
+  value_template?: Template;
+};
 
+export type Schema = Item | Item[];
+
+interface Item {
   /**
-   * The client ID that Home Assistant will use. Has to be unique on the server. Default is a randomly generated one.
-   * https://www.home-assistant.io/docs/mqtt/broker#client_id
-   */
-  client_id?: string;
-
-  /**
-   * Client key, e.g., /home/user/owntracks/cookie.key.
-   * https://www.home-assistant.io/docs/mqtt/certificate/#client_key
-   */
-  client_key?: string;
-
-  /**
-   * The prefix for the discovery topic.
-   * https://www.home-assistant.io/docs/mqtt/discovery/#discovery_prefix
-   */
-  discovery_prefix?: string;
-
-  /**
-   * If the MQTT discovery should be enabled or not.
-   * https://www.home-assistant.io/docs/mqtt/discovery/#discovery
-   */
-  discovery?: boolean;
-
-  /**
-   * The time in seconds between sending keep alive messages for this client. Default is 60.
-   * https://www.home-assistant.io/docs/mqtt/broker#keepalive
-   *
-   * @min 15
-   */
-  keepalive?: PositiveInteger;
-
-  /**
-   * The corresponding password for the username to use with your MQTT broker.
-   * https://www.home-assistant.io/docs/mqtt/broker#password
-   */
-  password?: string;
-
-  /**
-   * The network port to connect to. Default is 1883.
-   */
-  port?: Port;
-
-  /**
-   * Protocol to use: 3.1 or 3.1.1. By default it connects with 3.1.1 and falls back to 3.1 if server does not support 3.1.1.
-   * https://www.home-assistant.io/docs/mqtt/broker#protocol
-   */
-  protocol?: "3.1" | "3.1.1";
-
-  /**
-   * Set the verification of the server hostname in the server certificate.
-   * https://www.home-assistant.io/docs/mqtt/broker#tls_insecure
-   */
-  tls_insecure?: boolean;
-
-  /**
-   * DEPRECATED as of Home Assistant 0.115.0.
-   * Please remove this option form your configuration.
-   */
-  tls_version?: Deprecated;
-
-  /**
-   * The username to use with your MQTT broker.
-   * https://www.home-assistant.io/docs/mqtt/broker#username
-   */
-  username?: string;
-
-  /**
-   * Will Message.
-   * https://www.home-assistant.io/docs/mqtt/birth_will/#will_message
-   */
-  will_message?: {
-    /**
-     * The MQTT topic to publish the message.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#topic
-     */
-    topic?: string;
-
-    /**
-     * The message content.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#payload
-     */
-    payload?: string;
-
-    /**
-     * The maximum QoS level of the topic.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#qos
-     */
-    qos?: QOS;
-
-    /**
-     * If the published message should have the retain flag on or not.
-     * https://www.home-assistant.io/docs/mqtt/birth_will/#retain
-     */
-    retain?: boolean;
-  };
-}
-
-export interface AlarmControlPanelPlatformSchema extends PlatformSchema {
-  /**
-   * he mqtt alarm panel platform enables the possibility to control MQTT capable alarm panels. The Alarm icon will change state after receiving a new state from state_topic.
+   * The mqtt alarm panel platform enables the possibility to control MQTT capable alarm panels. The Alarm icon will change state after receiving a new state from state_topic.
    * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/
    */
-  platform: "mqtt";
+  alarm_control_panel?:
+    | AlarmControlPanelItem
+    | AlarmControlPanelItem[]
+    | IncludeList;
 
   /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#availability
+   * The mqtt binary sensor platform uses an MQTT message received to set the binary sensor’s state to on or off.
+   * https://www.home-assistant.io/integrations/binary_sensor.mqtt
    */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#topic
-     */
-    topic: string;
+  binary_sensor?: BinarySensorItem | BinarySensorItem[] | IncludeList;
 
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#payload_available
-     */
-    payload_available?: string;
+  /**
+   * The mqtt button platform lets you send an MQTT message when the button is pressed in the frontend or the button press service is called.
+   * https://www.home-assistant.io/integrations/button.mqtt
+   */
+  button?: any;
 
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
+  /**
+   * The mqtt camera platform allows you to integrate the content of an image file sent through MQTT into Home Assistant as a camera.
+   * https://www.home-assistant.io/integrations/camera.mqtt/
+   */
+  camera?: CameraItem | CameraItem[] | IncludeList;
+
+  /**
+   * The mqtt climate platform lets you control your MQTT enabled HVAC devices.
+   * https://www.home-assistant.io/integrations/climate.mqtt/
+   */
+  climate?: ClimateItem | ClimateItem[] | IncludeList;
+
+  /**
+   * The mqtt cover platform allows you to control an MQTT cover (such as blinds, a rollershutter or a garage door).
+   * https://www.home-assistant.io/integrations/cover.mqtt/
+   */
+  cover?: CoverItem | CoverItem[] | IncludeList;
+
+  /**
+   * The mqtt device tracker platform allows you to detect presence by monitoring an MQTT topic for new locations.
+   * https://www.home-assistant.io/integrations/device_tracker.mqtt/
+   */
+  device_tracker?: DeviceTrackerItem | DeviceTrackerItem[] | IncludeList;
+
+  /**
+   * The mqtt fan platform lets you control your MQTT enabled fans.
+   * https://www.home-assistant.io/integrations/fan.mqtt/
+   */
+  fan?: FanItem | FanItem[] | IncludeList;
+
+  /**
+   * The mqtt humidifier platform lets you control your MQTT enabled humidifiers.
+   * https://www.home-assistant.io/integrations/humidifier.mqtt
+   */
+  humidifier?: any;
+
+  /**
+   * The mqtt image platform allows you to integrate the content of an image file sent through MQTT into Home Assistant as an image.
+   * https://www.home-assistant.io/integrations/image.mqtt
+   */
+  image?: ImageItem | ImageItem[] | IncludeList;
+
+  /**
+   * The mqtt light platform lets you control your MQTT enabled lights through one of the supported message schemas, default, json or template.
+   * https://www.home-assistant.io/integrations/light.mqtt/
+   */
+  light?:
+    | LightDefaultItem
+    | LightJSONItem
+    | LightTemplateItem
+    | (LightDefaultItem | LightDefaultItem | LightTemplateItem)[]
+    | IncludeList;
+
+  /**
+   * The mqtt lock platform lets you control your MQTT enabled locks.
+   * https://www.home-assistant.io/integrations/lock.mqtt/
+   */
+  lock?: LockItem | LockItem[] | IncludeList;
+
+  /**
+   * The MQTT number platform.
+   * https://www.home-assistant.io/integrations/number.mqtt/
+   */
+  number?: NumberItem | NumberItem[] | IncludeList;
+
+  /**
+   * The mqtt scene platform lets you control your MQTT enabled scenes.
+   * https://www.home-assistant.io/integrations/scene.mqtt/
+   */
+  scene?: any;
+
+  /**
+   * This mqtt select platform uses the MQTT message payload as the select value.
+   * https://www.home-assistant.io/integrations/select.mqtt
+   */
+  select?: SelectItem | SelectItem[] | IncludeList;
+
+  /**
+   * The mqtt siren platform lets you control your MQTT enabled sirens and text based notification devices.
+   * https://www.home-assistant.io/integrations/siren.mqtt
+   */
+  siren?: any;
+
+  /**
+   * This mqtt sensor platform uses the MQTT message payload as the sensor value.
+   * https://www.home-assistant.io/integrations/sensor.mqtt
+   */
+  sensor?: SensorItem | SensorItem[] | IncludeList;
+
+  /**
+   * The mqtt switch platform lets you control your MQTT enabled switches.
+   * https://www.home-assistant.io/integrations/switch.mqtt
+   */
+  switch?: any;
+
+  /**
+   * The mqtt vacuum integration allows you to control your MQTT-enabled vacuum.
+   * https://www.home-assistant.io/integrations/vacuum.mqtt
+   */
+  vacuum?:
+    | VacuumItem
+    | VacuumLegacyItem[]
+    | (VacuumItem | VacuumLegacyItem)[]
+    | IncludeList;
+}
+
+interface BaseItem {
+  /**
+   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
+   */
+  availability?: Availability[];
 
   /**
    * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#availability_mode
    */
   availability_mode?: AvailabilityMode;
 
   /**
+   * Defines a template to extract device’s availability from the availability_topic. To determine the devices’s availability result of this template will be compared to payload_available and payload_not_available.
+   */
+  availability_template?: Template;
+
+  /**
    * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#availability_topic
    */
   availability_topic?: string;
 
+  /**
+   * The payload that represents the available state.
+   */
+  payload_available?: string;
+
+  /**
+   * The payload that represents the unavailable state.
+   */
+  payload_not_available?: string;
+
+  /**
+   * Information about the device this sensor is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
+   */
+  device?: {
+    /**
+     * A link to the webpage that can manage the configuration of this device. Can be either an http://, https:// or an internal homeassistant:// URL
+     */
+    configuration_url?: string;
+
+    /**
+     * A list of connections of the device to the outside world as a list of tuples.
+     */
+    connections?: { [key: string]: string };
+
+    /**
+     * The hardware version of the device.
+     */
+    hw_version?: string;
+
+    /**
+     * A list of IDs that uniquely identify the device. For example a serial number.
+     */
+    identifiers?: string | string[];
+
+    /**
+     * The manufacturer of the device.
+     */
+    manufacturer?: string;
+
+    /**
+     * The model of the device.
+     */
+    model?: string;
+
+    /**
+     * The model identifier of the device.
+     */
+    model_id?: string;
+
+    /**
+     * The name of the device.
+     */
+    name?: string;
+
+    /**
+     * The serial number of the device.
+     */
+    serial_number?: string;
+
+    /**
+     * Suggest an area if the device isn’t in one yet.
+     */
+    suggested_area?: string;
+
+    /**
+     * The firmware version of the device.
+     */
+    sw_version?: string;
+
+    /**
+     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
+     */
+    via_device?: string;
+  };
+
+  /**
+   * Flag which defines if the entity should be enabled when first added.
+   */
+  enabled_by_default?: boolean;
+
+  /**
+   *
+   */
+  entity_category?: "diagnostic" | "config";
+
+  /**
+   * Icon to use for the entity created.
+   */
+  icon?: string;
+
+  /**
+   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
+   */
+  json_attributes_template?: Template;
+
+  /**
+   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
+   */
+  json_attributes_topic?: string;
+
+  /**
+   * An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
+   */
+  object_id?: string;
+
+  /**
+   * An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
+   */
+  unique_id?: string;
+}
+
+export interface AlarmControlPanelItem extends BaseItem {
   /**
    * If defined, specifies a code to enable or disable the alarm in the frontend.
    * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#code
@@ -239,72 +332,6 @@ export interface AlarmControlPanelPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#command_topic
    */
   command_topic: string;
-
-  /**
-   * Information about the device this sensor is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The name of the MQTT alarm.
@@ -337,22 +364,10 @@ export interface AlarmControlPanelPlatformSchema extends PlatformSchema {
   payload_arm_custom_bypass?: string;
 
   /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
    * The payload to disarm your Alarm Panel.
    * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#payload_disarm
    */
   payload_disarm?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The maximum QoS level of the state topic.
@@ -373,114 +388,18 @@ export interface AlarmControlPanelPlatformSchema extends PlatformSchema {
   state_topic: string;
 
   /**
-   * An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines a template to extract the value.
    * https://www.home-assistant.io/integrations/alarm_control_panel.mqtt/#value_template
    */
   value_template?: Template;
 }
 
-export interface BinarySensorPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt binary sensor platform uses an MQTT message received to set the binary sensor’s state to on or off.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt
-   */
-  platform: "mqtt";
-
-  /**
-   * Set multiple availability topics for this sensor.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#availability_topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#availability_topic
-   */
-  availability_topic?: string;
-
+export interface BinarySensorItem extends BaseItem {
   /**
    * The type/class of the sensor to set the icon in the frontend.
    * https://www.home-assistant.io/integrations/binary_sensor.mqtt#device_class
    */
   device_class?: DeviceClassesBinarySensor;
-
-  /**
-   * Information about the device this sensor is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/binary_sensor.mqtt#via_device
-     */
-    via_device?: string;
-  };
 
   /**
    * Defines the number of seconds after the sensor’s state expires, if it’s not updated. After expiry, the sensor’s state becomes unavailable.
@@ -495,24 +414,6 @@ export interface BinarySensorPlatformSchema extends PlatformSchema {
   force_update?: boolean;
 
   /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
-  /**
    * The name of the MQTT binary sensor.
    * https://www.home-assistant.io/integrations/binary_sensor.mqtt#name
    */
@@ -523,18 +424,6 @@ export interface BinarySensorPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/binary_sensor.mqtt#off_delay
    */
   off_delay?: PositiveInteger;
-
-  /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The string that represents the off state. It will be compared to the message in the state_topic.
@@ -561,127 +450,13 @@ export interface BinarySensorPlatformSchema extends PlatformSchema {
   state_topic: string;
 
   /**
-   * An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/binary_sensor.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines a template to extract the value.
    * https://www.home-assistant.io/integrations/binary_sensor.mqtt#value_template
    */
   value_template?: Template;
 }
 
-export interface CameraPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt camera platform allows you to integrate the content of an image file sent through MQTT into Home Assistant as a camera.
-   * https://www.home-assistant.io/integrations/camera.mqtt/
-   */
-  platform: "mqtt";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/camera.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/camera.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/camera.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
-  /**
-   * Information about the device this camera is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/camera.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/camera.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/camera.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/camera.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/camera.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/camera.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/camera.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/camera.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/camera.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
+export interface CameraItem extends BaseItem {
   /**
    * The name of the MQTT camera.
    * https://www.home-assistant.io/integrations/camera.mqtt#name
@@ -693,21 +468,9 @@ export interface CameraPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/camera.mqtt/#device
    */
   topic: string;
-
-  /**
-   * An ID that uniquely identifies this camera. If two cameras have the same unique ID Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/camera.mqtt#unique_id
-   */
-  unique_id?: string;
 }
 
-export interface ClimatePlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt climate platform lets you control your MQTT enabled HVAC devices.
-   * https://www.home-assistant.io/integrations/climate.mqtt/
-   */
-  platform: "mqtt";
-
+export interface ClimateItem extends BaseItem {
   /**
    * A template to render the value received on the action_topic with.
    * https://www.home-assistant.io/integrations/climate.mqtt/#action_template
@@ -715,10 +478,10 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   action_template?: Template;
 
   /**
-   * The MQTT topic to subscribe for changes of the current action. If this is set, the climate graph uses the value received as data source.
+   * The MQTT topic to subscribe for changes of the current action. If this is set, the climate graph uses the value received as data source. Valid values: off, heating, cooling, drying, idle, fan.
    * https://www.home-assistant.io/integrations/climate.mqtt/#action_topic
    */
-  action_topic?: string;
+  action_topic?: "off" | "heating" | "cooling" | "drying" | "idle" | "fan";
 
   /**
    * The MQTT topic to publish commands to switch auxiliary heat.
@@ -739,60 +502,6 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   aux_state_topic?: string;
 
   /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/climate.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/climate.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/climate.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
-  /**
-   * The MQTT topic to publish commands to change the away mode.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#away_mode_command_topic
-   */
-  away_mode_command_topic?: string;
-
-  /**
-   * A template to render the value received on the away_mode_state_topic with.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#away_mode_state_template
-   */
-  away_mode_state_template?: Template;
-
-  /**
-   * The MQTT topic to subscribe for changes of the HVAC away mode. If this is not set, the away mode works in optimistic mode.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#away_mode_state_topic
-   */
-  away_mode_state_topic?: string;
-
-  /**
    * A template with which the value received on current_temperature_topic will be rendered.
    * https://www.home-assistant.io/integrations/climate.mqtt/#current_temperature_template
    */
@@ -805,52 +514,16 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   current_temperature_topic?: string;
 
   /**
-   * Information about the device this HVAC is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#device
+   * The encoding of the payloads received and published messages. Set to "" to disable decoding of incoming payload.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#encoding
    */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/climate.mqtt#connections
-     */
-    connections?: { [key: string]: string };
+  encoding?: string;
 
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/climate.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/climate.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/climate.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/climate.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/climate.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/climate.mqtt#via_device
-     */
-    via_device?: string;
-  };
+  /**
+   * A template to render the value sent to the fan_mode_command_topic with.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#fan_mode_command_template
+   */
+  fan_mode_command_template?: Template;
 
   /**
    * The MQTT topic to publish commands to change the fan mode.
@@ -877,52 +550,10 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   fan_modes?: string[];
 
   /**
-   * The MQTT topic to publish commands to change the hold mode.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#hold_command_topic
-   */
-  hold_command_topic?: string;
-
-  /**
-   * A template to render the value received on the hold_state_topic with.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#hold_state_template
-   */
-  hold_state_template?: Template;
-
-  /**
-   * The MQTT topic to subscribe for changes of the HVAC hold mode. If this is not set, the hold mode works in optimistic mode.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#hold_state_topic
-   */
-  hold_state_topic?: string;
-
-  /**
-   * A list of available hold modes.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#hold_modes
-   */
-  hold_modes?: string[];
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
    * Set the initial target temperature.
    * https://www.home-assistant.io/integrations/climate.mqtt/#initial
    */
   initial?: Integer;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/climate.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/climate.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * Maximum set point available.
@@ -961,28 +592,16 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   mode_state_topic?: string;
 
   /**
-   * A list of supported modes.
+   * A list of supported modes. Needs to be a subset of the default values.
    * https://www.home-assistant.io/integrations/climate.mqtt/#modes
    */
   modes?: ("auto" | "off" | "cool" | "heat" | "dry" | "fan_only")[];
 
   /**
-   * The name of the MQTT climate device.
+   * The name of the HVAC.
    * https://www.home-assistant.io/integrations/climate.mqtt#name
    */
   name?: string;
-
-  /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The payload that represents disabled state.
@@ -1009,6 +628,35 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   precision?: 0.1 | 0.5 | 1.0;
 
   /**
+   * Defines a template to generate the payload to send to preset_mode_command_topic.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#preset_mode_command_template
+   */
+  preset_mode_command_template?: Template;
+
+  /**
+   * The MQTT topic to publish commands to change the preset mode.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#preset_mode_command_topic
+   */
+  preset_mode_command_topic?: string;
+  /**
+   * The MQTT topic subscribed to receive climate speed based on presets. When preset ‘none’ is received or None the preset_mode will be reset.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#preset_mode_state_topic
+   */
+  preset_mode_state_topic?: string;
+
+  /**
+   * Defines a template to extract the preset_mode value from the payload received on preset_mode_state_topic.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#preset_mode_value_template
+   */
+  preset_mode_value_template?: string;
+
+  /**
+   * List of preset modes this climate is supporting. Common examples include eco, away, boost, comfort, home, sleep and activity.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#preset_modes
+   */
+  preset_modes?: string[];
+
+  /**
    * The maximum QoS level to be used when receiving and publishing messages.
    * https://www.home-assistant.io/integrations/climate.mqtt/#qos
    */
@@ -1021,10 +669,10 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   retain?: boolean;
 
   /**
-   * Set to false to suppress sending of all MQTT messages when the current mode is Off.
-   * https://www.home-assistant.io/integrations/climate.mqtt/#send_if_off
+   * A template to render the value sent to the swing_mode_command_topic with.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#swing_mode_command_template
    */
-  send_if_off: boolean;
+  swing_mode_command_template?: Template;
 
   /**
    * The MQTT topic to publish commands to change the swing mode.
@@ -1051,10 +699,22 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   swing_modes?: string[];
 
   /**
+   * A template to render the value sent to the temperature_command_topic with.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#temperature_command_template
+   */
+  temperature_command_template?: Template;
+
+  /**
    * The MQTT topic to publish commands to change the target temperature.
    * https://www.home-assistant.io/integrations/climate.mqtt#temperature_command_topic
    */
   temperature_command_topic?: string;
+
+  /**
+   * A template to render the value sent to the temperature_high_command_topic with.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#temperature_high_command_template
+   */
+  temperature_high_command_template?: Template;
 
   /**
    * The MQTT topic to publish commands to change the high target temperature.
@@ -1073,6 +733,12 @@ export interface ClimatePlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/climate.mqtt#temperature_high_state_topic
    */
   temperature_high_state_topic?: string;
+
+  /**
+   * A template to render the value sent to the temperature_high_command_topic with.
+   * https://www.home-assistant.io/integrations/climate.mqtt/#temperature_high_command_template
+   */
+  temperature_low_command_template?: Template;
 
   /**
    * The MQTT topic to publish commands to change the target low temperature.
@@ -1117,61 +783,13 @@ export interface ClimatePlatformSchema extends PlatformSchema {
   temp_step?: number;
 
   /**
-   * An ID that uniquely identifies this HVAC device. If two HVAC devices have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/climate.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Default template to render the payloads on all *_state_topics with.
    * https://www.home-assistant.io/integrations/climate.mqtt#value_template
    */
   value_template?: Template;
 }
 
-export interface CoverPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt cover platform allows you to control an MQTT cover (such as blinds, a rollershutter or a garage door).
-   * https://www.home-assistant.io/integrations/cover.mqtt/
-   */
-  platform: "mqtt";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/cover.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/cover.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/cover.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/camera.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
+export interface CoverItem extends BaseItem {
   /**
    * The MQTT topic to publish commands to control the cover.
    * https://www.home-assistant.io/integrations/cover.mqtt/#command_topic
@@ -1179,76 +797,10 @@ export interface CoverPlatformSchema extends PlatformSchema {
   command_topic?: string;
 
   /**
-   * Information about the device this camera is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/cover.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/cover.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/cover.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/cover.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/cover.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/cover.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/cover.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
    * Sets the class of the device, changing the device state and icon that is displayed on the frontend.
    * https://www.home-assistant.io/integrations/cover.mqtt/#device_class
    */
   device_class?: DeviceClassesCover;
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/cover.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/cover.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The name of the MQTT cover.
@@ -1263,22 +815,10 @@ export interface CoverPlatformSchema extends PlatformSchema {
   optimistic?: boolean;
 
   /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
    * The command payload that closes the cover.
    * https://www.home-assistant.io/integrations/cover.mqtt/#payload_close
    */
   payload_close?: string;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/cover.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The command payload that opens the cover.
@@ -1395,11 +935,6 @@ export interface CoverPlatformSchema extends PlatformSchema {
   tilt_command_topic?: string;
 
   /**
-   * DEPRECATED as of Home Assistant 2021.3.0
-   */
-  tilt_invert_state?: Deprecated;
-
-  /**
    *The maximum tilt value.
    * https://www.home-assistant.io/integrations/cover.mqtt/#tilt_max
    */
@@ -1436,25 +971,13 @@ export interface CoverPlatformSchema extends PlatformSchema {
   tilt_status_topic?: string;
 
   /**
-   * An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/cover.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines a template to extract a value from the payload.
    * https://www.home-assistant.io/integrations/cover.mqtt/#value_template
    */
   value_template?: Template;
 }
 
-export interface DeviceTrackerPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt device tracker platform allows you to detect presence by monitoring an MQTT topic for new locations.
-   * https://www.home-assistant.io/integrations/device_tracker.mqtt/
-   */
-  platform: "mqtt";
-
+export interface DeviceTrackerItem extends BaseItem {
   /**
    * List of devices with their topic.
    * https://www.home-assistant.io/integrations/device_tracker.mqtt/#devices
@@ -1486,120 +1009,12 @@ export interface DeviceTrackerPlatformSchema extends PlatformSchema {
   source_type?: "bluetooth" | "bluetooth_le" | "gps" | "router";
 }
 
-export interface FanPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt fan platform lets you control your MQTT enabled fans.
-   * https://www.home-assistant.io/integrations/fan.mqtt/
-   */
-  platform: "mqtt";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/fan.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/fan.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/fan.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
+export interface FanItem extends BaseItem {
   /**
    * The MQTT topic to publish commands to change the fan state.
    * https://www.home-assistant.io/integrations/fan.mqtt/#command_topic
    */
   command_topic: string;
-
-  /**
-   * Information about the device this camera is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/fan.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/fan.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/fan.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/fan.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/fan.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/fan.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/fan.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/fan.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/fan.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The name of the MQTT fan.
@@ -1636,36 +1051,6 @@ export interface FanPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/fan.mqtt/#oscillation_value_template
    */
   oscillation_value_template?: Template;
-
-  /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the fan’s high speed.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#payload_high_speed
-   */
-  payload_high_speed?: Deprecated;
-
-  /**
-   * The payload that represents the fan’s low speed.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#payload_low_speed
-   */
-  payload_low_speed?: Deprecated;
-
-  /**
-   * The payload that represents the fan’s medium speed.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#payload_medium_speed
-   */
-  payload_medium_speed?: Deprecated;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The payload that represents the stop state.
@@ -1782,30 +1167,6 @@ export interface FanPlatformSchema extends PlatformSchema {
   speed_range_max?: PositiveInteger;
 
   /**
-   * The MQTT topic to publish commands to change speed state.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#speed_command_topic
-   */
-  speed_command_topic?: Deprecated;
-
-  /**
-   * The MQTT topic subscribed to receive speed state updates.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#speed_state_topic
-   */
-  speed_state_topic?: Deprecated;
-
-  /**
-   * Defines a template to extract a value from the speed payload.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#speed_value_template
-   */
-  speed_value_template?: Deprecated;
-
-  /**
-   * List of speeds this fan is capable of running at. Valid entries are off, low, medium and high.
-   * https://www.home-assistant.io/integrations/fan.mqtt/#speeds
-   */
-  speeds: Deprecated;
-
-  /**
    * The MQTT topic subscribed to receive state updates.
    * https://www.home-assistant.io/integrations/fan.mqtt/#state_topic
    */
@@ -1816,62 +1177,52 @@ export interface FanPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/fan.mqtt/#state_value_template
    */
   state_value_template?: Template;
-
-  /**
-   * An ID that uniquely identifies this cover. If two covers have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/fan.mqtt#unique_id
-   */
-  unique_id?: string;
 }
 
-export interface LightDefaultPlatformSchema extends PlatformSchema {
+export interface ImageItem extends BaseItem {
   /**
-   * The mqtt light platform lets you control your MQTT enabled lights through one of the supported message schemas, default, json or template.
-   * https://www.home-assistant.io/integrations/light.mqtt/
+   * The name of the MQTT image.
+   * https://www.home-assistant.io/integrations/image.mqtt#name
    */
-  platform: "mqtt";
+  name?: string;
 
+  /**
+   * The content type of an image data message received on image_topic.
+   * https://www.home-assistant.io/integrations/image.mqtt#content_type
+   */
+  content_type?: string;
+
+  /**
+   * The encoding of the image payloads received.
+   * https://www.home-assistant.io/integrations/image.mqtt#image_encoding
+   */
+  image_encoding?: string;
+
+  /**
+   * The MQTT topic to subscribe to receive the image payload of the image to be downloaded.
+   * https://www.home-assistant.io/integrations/image.mqtt#image_topic
+   */
+  image_topic?: string;
+
+  /**
+   * Defines a template to extract the image URL from a message received at url_topic.
+   * https://www.home-assistant.io/integrations/image.mqtt#url_template
+   */
+  url_template?: Template;
+
+  /**
+   * The MQTT topic to subscribe to receive an image URL.
+   * https://www.home-assistant.io/integrations/image.mqtt#url_topic
+   */
+  url_topic?: string;
+}
+
+export interface LightDefaultItem extends BaseItem {
   /**
    * The mqtt light platform with default schema lets you control your MQTT enabled lights. It supports setting brightness, color temperature, effects, flashing, on/off, RGB colors, transitions, XY colors and white values.
    * https://www.home-assistant.io/integrations/light.mqtt/#default-schema---configuration
    */
   schema?: "default";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/light.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_topic
-   */
-  availability_topic?: string;
 
   /**
    * The MQTT topic to publish commands to change the light’s brightness.
@@ -1940,54 +1291,6 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
   command_topic: string;
 
   /**
-   * Information about the device this light is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/light.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/light.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/light.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/light.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
    * The MQTT topic to publish commands to change the light’s effect state.
    * https://www.home-assistant.io/integrations/light.mqtt/#effect_command_topic
    */
@@ -2030,24 +1333,6 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
   hs_value_template?: Template;
 
   /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/light.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
-  /**
    * The maximum color temperature in mireds.
    * https://www.home-assistant.io/integrations/light.mqtt/#max_mireds
    */
@@ -2076,18 +1361,6 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/light.mqtt/#optimistic
    */
   optimistic?: boolean;
-
-  /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The payload that represents disabled state.
@@ -2150,12 +1423,6 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
   state_value_template?: Template;
 
   /**
-   * An ID that uniquely identifies this light. If two lights have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/light.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * The MQTT topic to publish commands to change the light to white mode with a given brightness.
    * https://www.home-assistant.io/integrations/light.mqtt#white_command_topic
    */
@@ -2166,26 +1433,6 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/light.mqtt#white_scale
    */
   white_scale?: Integer;
-
-  /**
-   * DEPRECATED
-   */
-  white_value_command_topic?: Deprecated;
-
-  /**
-   * DEPRECATED
-   */
-  white_value_scale?: Deprecated;
-
-  /**
-   * DEPRECATED
-   */
-  white_value_state_topic?: Deprecated;
-
-  /**
-   * DEPRECATED
-   */
-  white_value_template?: Deprecated;
 
   /**
    * The MQTT topic to publish commands to change the light’s XY state.
@@ -2206,54 +1453,12 @@ export interface LightDefaultPlatformSchema extends PlatformSchema {
   xy_value_template?: Template;
 }
 
-export interface LightJSONPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt light platform lets you control your MQTT enabled lights through one of the supported message schemas, default, json or template.
-   * https://www.home-assistant.io/integrations/light.mqtt/
-   */
-  platform: "mqtt";
-
+export interface LightJSONItem extends BaseItem {
   /**
    * The mqtt light platform with default schema lets you control your MQTT enabled lights. It supports setting brightness, color temperature, effects, flashing, on/off, RGB colors, transitions, XY colors and white values.
    * https://www.home-assistant.io/integrations/light.mqtt/#json-schema---configuration
    */
   schema?: "json";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/light.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_topic
-   */
-  availability_topic?: string;
 
   /**
    * Flag that defines if the light supports brightness.
@@ -2286,54 +1491,6 @@ export interface LightJSONPlatformSchema extends PlatformSchema {
   command_topic: string;
 
   /**
-   * Information about the device this light is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/light.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/light.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/light.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/light.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
    * Flag that defines if the light supports effects.
    * https://www.home-assistant.io/integrations/light.mqtt/#effect
    */
@@ -2364,24 +1521,6 @@ export interface LightJSONPlatformSchema extends PlatformSchema {
   hs?: boolean;
 
   /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/light.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
-  /**
    * The maximum color temperature in mireds.
    * https://www.home-assistant.io/integrations/light.mqtt/#max_mireds
    */
@@ -2404,18 +1543,6 @@ export interface LightJSONPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/light.mqtt/#optimistic
    */
   optimistic?: boolean;
-
-  /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The maximum QoS level to be used when receiving and publishing messages.
@@ -2448,12 +1575,6 @@ export interface LightJSONPlatformSchema extends PlatformSchema {
   supported_color_modes?: ColorMode[];
 
   /**
-   * An ID that uniquely identifies this light. If two lights have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/light.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Flag that defines if the light supports white values.
    * https://www.home-assistant.io/integrations/light.mqtt/#white_value
    */
@@ -2466,54 +1587,12 @@ export interface LightJSONPlatformSchema extends PlatformSchema {
   xy?: boolean;
 }
 
-export interface LightTemplatePlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt light platform lets you control your MQTT enabled lights through one of the supported message schemas, default, json or template.
-   * https://www.home-assistant.io/integrations/light.mqtt/
-   */
-  platform: "mqtt";
-
+export interface LightTemplateItem extends BaseItem {
   /**
    * The mqtt light platform with default schema lets you control your MQTT enabled lights. It supports setting brightness, color temperature, effects, flashing, on/off, RGB colors, transitions, XY colors and white values.
    * https://www.home-assistant.io/integrations/light.mqtt/#json-schema---configuration
    */
   schema?: "template";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/light.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/light.mqtt/#availability_topic
-   */
-  availability_topic?: string;
 
   /**
    * Template to extract blue color from the state payload value.
@@ -2552,54 +1631,6 @@ export interface LightTemplatePlatformSchema extends PlatformSchema {
   command_topic: string;
 
   /**
-   * Information about the device this light is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/light.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/light.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/light.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/light.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/light.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
    * The list of effects the light supports.
    * https://www.home-assistant.io/integrations/light.mqtt/#effect_list
    */
@@ -2616,24 +1647,6 @@ export interface LightTemplatePlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/light.mqtt/#green_template
    */
   green_template?: Template;
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/light.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/light.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The maximum color temperature in mireds.
@@ -2660,18 +1673,6 @@ export interface LightTemplatePlatformSchema extends PlatformSchema {
   optimistic?: boolean;
 
   /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/light.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
-
-  /**
    * The maximum QoS level to be used when receiving and publishing messages.
    * https://www.home-assistant.io/integrations/light.mqtt/#qos
    */
@@ -2694,133 +1695,14 @@ export interface LightTemplatePlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/light.mqtt/#state_topic
    */
   state_topic?: string;
-
-  /**
-   * An ID that uniquely identifies this light. If two lights have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/light.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
-   * DEPRECATED
-   */
-  white_value_template?: Deprecated;
 }
 
-export interface LockPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt lock platform lets you control your MQTT enabled locks.
-   * https://www.home-assistant.io/integrations/lock.mqtt/
-   */
-  platform: "mqtt";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/lock.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/lock.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/lock.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
+export interface LockItem extends BaseItem {
   /**
    * The MQTT topic to publish commands to change the lock state.
    * https://www.home-assistant.io/integrations/lock.mqtt/#command_topic
    */
   command_topic: string;
-
-  /**
-   * Information about the device this lock is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/lock.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/lock.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/lock.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/lock.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/lock.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/lock.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/lock.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/lock.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes.
-   * https://www.home-assistant.io/integrations/lock.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The name of the MQTT lock.
@@ -2835,22 +1717,10 @@ export interface LockPlatformSchema extends PlatformSchema {
   optimistic?: boolean;
 
   /**
-   * The payload that represents the online state.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#payload_available
-   */
-  payload_available?: string;
-
-  /**
    * The payload that represents enabled/locked state.
    * https://www.home-assistant.io/integrations/lock.mqtt/#payload_lock
    */
   payload_lock?: string;
-
-  /**
-   * The payload that represents the offline state.
-   * https://www.home-assistant.io/integrations/lock.mqtt/#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The value that represents the lock to be in unlocked state.
@@ -2889,132 +1759,18 @@ export interface LockPlatformSchema extends PlatformSchema {
   state_unlocked?: string;
 
   /**
-   * An ID that uniquely identifies this light. If two lights have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/lock.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines a template to extract a value from the payload.
    * https://www.home-assistant.io/integrations/lock.mqtt/#value_template
    */
   value_template?: Template;
 }
 
-export interface NumberPlatformSchema extends PlatformSchema {
-  /**
-   * The MQTT number platform.
-   * https://www.home-assistant.io/integrations/number.mqtt/
-   */
-  platform: "mqtt";
-
-  /**
-   * A list of MQTT topics subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/number.mqtt/#availability
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/number.mqtt/#topic
-     */
-    topic: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/number.mqtt/#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/number.mqtt/#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/number.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/numbver.mqtt/#availability_topic
-   */
-  availability_topic?: string;
-
+export interface NumberItem extends BaseItem {
   /**
    * The MQTT topic to publish commands to change the number state.
    * https://www.home-assistant.io/integrations/number.mqtt/#command_topic
    */
   command_topic: string;
-
-  /**
-   * Information about the device this number is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/number.mqtt/#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/number.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/number.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/number.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/number.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/number.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/number.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/number.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/number.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/number.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as entity attributes.
-   * https://www.home-assistant.io/integrations/number.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * Maximum value.
@@ -3065,131 +1821,24 @@ export interface NumberPlatformSchema extends PlatformSchema {
   step?: number;
 
   /**
-   * An ID that uniquely identifies this number. If two numbers have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/number.mqtt#unique_id
+   * Defines the units of measurement, if any.
+   * https://www.home-assistant.io/integrations/number.mqtt#unit_of_measurement
    */
-  unique_id?: string;
+  unit_of_measurement?: string;
+
+  /**
+   * Defines a template to extract the value.
+   * https://www.home-assistant.io/integrations/number.mqtt#value_template
+   */
+  value_template?: Template;
 }
 
-export interface SelectPlatformSchema extends PlatformSchema {
-  /**
-   * This mqtt select platform uses the MQTT message payload as the select value.
-   * https://www.home-assistant.io/integrations/select.mqtt
-   */
-  platform: "mqtt";
-
-  /**
-   * Set multiple availability topics for this select.
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/select.mqtt#availability_topic
-     */
-    topic?: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/select.mqtt#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/select.mqtt#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/select.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/select.mqtt#availability_topic
-   */
-  availability_topic?: string;
-
+export interface SelectItem extends BaseItem {
   /**
    * The MQTT topic to publish commands to control the select.
    * https://www.home-assistant.io/integrations/select.mqtt/#command_topic
    */
   command_topic: string;
-
-  /**
-   * Information about the device this select is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/select.mqtt#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/select.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/select.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/select.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/select.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/select.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/select.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/select.mqtt#via_device
-     */
-    via_device?: string;
-  };
-
-  /**
-   * Flag which defines if the entity should be enabled when first added.
-   * https://www.home-assistant.io/integrations/select.mqtt#enabled_by_default
-   */
-  enabled_by_default?: boolean;
-
-  /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/select.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/select.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as entity attributes. Implies force_update of the current select state when a message is received on this topic.
-   * https://www.home-assistant.io/integrations/select.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The name of the MQTT select.
@@ -3228,119 +1877,18 @@ export interface SelectPlatformSchema extends PlatformSchema {
   state_topic?: string;
 
   /**
-   * An ID that uniquely identifies this select. If two selects have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/select.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines a template to extract a value from the payload.
    * https://www.home-assistant.io/integrations/select.mqtt/#value_template
    */
   value_template?: Template;
 }
 
-export interface SensorPlatformSchema extends PlatformSchema {
-  /**
-   * This mqtt sensor platform uses the MQTT message payload as the sensor value.
-   * https://www.home-assistant.io/integrations/sensor.mqtt
-   */
-  platform: "mqtt";
-
-  /**
-   * Set multiple availability topics for this sensor.
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#availability_topic
-     */
-    topic?: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/sensor.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#availability_topic
-   */
-  availability_topic?: string;
-
+export interface SensorItem extends BaseItem {
   /**
    * The type/class of the sensor to set the icon in the frontend.
    * https://www.home-assistant.io/integrations/sensor.mqtt#device_class
    */
   device_class?: DeviceClassesSensor;
-
-  /**
-   * Information about the device this sensor is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * Suggest an area if the device isn’t in one yet.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#suggested_area
-     */
-    suggested_area?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/sensor.mqtt#via_device
-     */
-    via_device?: string;
-  };
 
   /**
    * Defines the number of seconds after the sensor’s state expires, if it’s not updated. After expiry, the sensor’s state becomes unavailable.
@@ -3353,24 +1901,6 @@ export interface SensorPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/sensor.mqtt#expire_after
    */
   force_update?: boolean;
-
-  /**
-   * The icon for the sensor.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
 
   /**
    * The MQTT topic subscribed to receive timestamps for when an accumulating sensor such as an energy meter was reset. If the sensor never resets, set last_reset_topic to same as state_topic and set the last_reset_value_template to a constant valid timstamp, for example UNIX epoch 0: 1970-01-01T00:00:00+00:00.
@@ -3391,18 +1921,6 @@ export interface SensorPlatformSchema extends PlatformSchema {
   name?: string;
 
   /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#payload_available
-   */
-  payload_available?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#payload_not_available
-   */
-  payload_not_available?: string;
-
-  /**
    * The maximum QoS level of the state topic.
    * https://www.home-assistant.io/integrations/sensor.mqtt#qos
    */
@@ -3421,12 +1939,6 @@ export interface SensorPlatformSchema extends PlatformSchema {
   state_topic: string;
 
   /**
-   * An ID that uniquely identifies this sensor. If two sensors have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/sensor.mqtt#unique_id
-   */
-  unique_id?: string;
-
-  /**
    * Defines the units of measurement of the sensor, if any.
    * https://www.home-assistant.io/integrations/sensor.mqtt#unit_of_measurement
    */
@@ -3439,13 +1951,7 @@ export interface SensorPlatformSchema extends PlatformSchema {
   value_template?: Template;
 }
 
-export interface VacuumPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt vacuum integration allows you to control your MQTT-enabled vacuum.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt
-   */
-  platform: "mqtt";
-
+export interface VacuumItem extends BaseItem {
   /**
    * The schema to use. Must be state to select the state schema.
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#schema
@@ -3453,93 +1959,10 @@ export interface VacuumPlatformSchema extends PlatformSchema {
   schema: "state";
 
   /**
-   * Set multiple availability topics for this vacuum.
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#availability_topic
-     */
-    topic?: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#availability_topic
-   */
-  availability_topic?: string;
-
-  /**
    * The MQTT topic to publish commands to control the vacuum.
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#command_topic
    */
   command_topic?: string;
-
-  /**
-   * Information about the device this vacuum is a part of to tie it into the device registry. Only works through MQTT discovery and when unique_id is set.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#device
-   */
-  device?: {
-    /**
-     * A list of connections of the device to the outside world as a list of tuples.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#connections
-     */
-    connections?: { [key: string]: string };
-
-    /**
-     * A list of IDs that uniquely identify the device. For example a serial number.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#identifiers
-     */
-    identifier?: string;
-
-    /**
-     * The manufacturer of the device.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#manufacturer
-     */
-    manufacturer?: string;
-
-    /**
-     * The model of the device.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#model
-     */
-    model?: string;
-
-    /**
-     * The name of the device.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#name
-     */
-    name?: string;
-
-    /**
-     * The firmware version of the device.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#sw_version
-     */
-    sw_version?: string;
-
-    /**
-     * Identifier of a device that routes messages between this device and Home Assistant. Examples of such devices are hubs, or parent devices of a sub-device.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#via_device
-     */
-    via_device?: string;
-  };
 
   /**
    * List of possible fan speeds for the vacuum.
@@ -3560,34 +1983,10 @@ export interface VacuumPlatformSchema extends PlatformSchema {
   fan_speed_topic?: string;
 
   /**
-   * Icon to use for the entity created.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt/#icon
-   */
-  icon?: string;
-
-  /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
-  /**
    * The name of the MQTT vacuum.
    * https://www.home-assistant.io/integrations/vacuum.mqtt#name
    */
   name?: string;
-
-  /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_available
-   */
-  payload_available?: string;
 
   /**
    * The payload to send to the command_topic to begin a spot cleaning cycle.
@@ -3600,12 +1999,6 @@ export interface VacuumPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#payload_locate
    */
   payload_locate?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The payload to send to the command_topic to pause the vacuum.
@@ -3666,61 +2059,14 @@ export interface VacuumPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#supported_features
    */
   supported_features?: string[];
-
-  /**
-   * An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#unique_id
-   */
-  unique_id?: string;
 }
 
-export interface VacuumLegacyPlatformSchema extends PlatformSchema {
-  /**
-   * The mqtt vacuum integration allows you to control your MQTT-enabled vacuum.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt
-   */
-  platform: "mqtt";
-
+export interface VacuumLegacyItem extends BaseItem {
   /**
    * The schema to use. Must be state to select the state schema.
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#schema
    */
   schema?: "legacy";
-
-  /**
-   * Set multiple availability topics for this vacuum.
-   */
-  availability?: {
-    /**
-     * The MQTT topic subscribed to receive availability (online/offline) updates.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#availability_topic
-     */
-    topic?: string;
-
-    /**
-     * The payload that represents the available state.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_available
-     */
-    payload_available?: string;
-
-    /**
-     * The payload that represents the unavailable state.
-     * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_not_available
-     */
-    payload_not_available?: string;
-  }[];
-
-  /**
-   * When availability is configured, this controls the conditions needed to set the entity to available. Valid entries are all, any, and latest.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt/#availability_mode
-   */
-  availability_mode?: AvailabilityMode;
-
-  /**
-   * The MQTT topic subscribed to receive availability (online/offline) updates.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#availability_topic
-   */
-  availability_topic?: string;
 
   /**
    * DEPRECATED
@@ -3817,28 +2163,10 @@ export interface VacuumLegacyPlatformSchema extends PlatformSchema {
   fan_speed_topic?: string;
 
   /**
-   * Defines a template to extract the JSON dictionary from messages received on the json_attributes_topic.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#json_attributes_template
-   */
-  json_attributes_template?: Template;
-
-  /**
-   * The MQTT topic subscribed to receive a JSON dictionary payload and then set as sensor attributes. Implies force_update of the current sensor state when a message is received on this topic.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#json_attributes_topic
-   */
-  json_attributes_topic?: string;
-
-  /**
    * The name of the MQTT vacuum.
    * https://www.home-assistant.io/integrations/vacuum.mqtt#name
    */
   name?: string;
-
-  /**
-   * The payload that represents the available state.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_available
-   */
-  payload_available?: string;
 
   /**
    * The payload to send to the command_topic to begin a spot cleaning cycle.
@@ -3851,12 +2179,6 @@ export interface VacuumLegacyPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#payload_locate
    */
   payload_locate?: string;
-
-  /**
-   * The payload that represents the unavailable state.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#payload_not_available
-   */
-  payload_not_available?: string;
 
   /**
    * The payload to send to the command_topic to tell the vacuum to return to base.
@@ -3919,10 +2241,4 @@ export interface VacuumLegacyPlatformSchema extends PlatformSchema {
    * https://www.home-assistant.io/integrations/vacuum.mqtt/#supported_features
    */
   supported_features?: string[];
-
-  /**
-   * An ID that uniquely identifies this vacuum. If two vacuums have the same unique ID, Home Assistant will raise an exception.
-   * https://www.home-assistant.io/integrations/vacuum.mqtt#unique_id
-   */
-  unique_id?: string;
 }

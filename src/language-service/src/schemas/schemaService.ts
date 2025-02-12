@@ -27,44 +27,53 @@ export class SchemaServiceForIncludes {
 
     for (const [sourceFile, sourceFileMapping] of haFiles.entries()) {
       let sourceFileMappingPath = sourceFileMapping.path.replace(
-        "homeassistant/packages/",
-        ""
+        path.join("homeassistant", "packages") + path.sep,
+        "",
       );
       sourceFileMappingPath = sourceFileMappingPath.replace(
-        /cards\/cards/g,
-        "cards"
+        /cards(\/|\\)cards/g,
+        "cards",
       );
 
-      if (sourceFileMappingPath.startsWith("blueprints/automation/")) {
+      if (
+        sourceFileMappingPath.startsWith(
+          path.join("blueprints", "automation") + path.sep,
+        )
+      ) {
         sourceFileMappingPath = "blueprints/automation";
       }
 
-      if (sourceFileMappingPath.startsWith("blueprints/script/")) {
+      if (
+        sourceFileMappingPath.startsWith(
+          path.join("blueprints", "script") + path.sep,
+        )
+      ) {
         sourceFileMappingPath = "blueprints/script";
       }
 
       if (
-        sourceFileMappingPath.startsWith("automations/") ||
+        sourceFileMappingPath.startsWith("automations" + path.sep) ||
         sourceFileMappingPath === "automations.yaml"
       ) {
         sourceFileMappingPath = "configuration.yaml/automation";
       }
 
+      if (sourceFileMappingPath.startsWith("custom_sentences" + path.sep)) {
+        sourceFileMappingPath = "custom_sentences.yaml";
+      }
+
       const relatedPathToSchemaMapping = this.mappings.find(
-        (x) => x.path === sourceFileMappingPath
+        (x) => x.path === sourceFileMappingPath,
       );
       if (relatedPathToSchemaMapping) {
         const id = `http://schemas.home-assistant.io/${relatedPathToSchemaMapping.key}`;
-        let absolutePath = path.resolve(
-          process.cwd(),
-          haFiles[sourceFile].filename
-        );
-        absolutePath = absolutePath.replace("\\", "/");
+        let absolutePath = fs.realpathSync.native(haFiles[sourceFile].filename);
+        absolutePath = absolutePath.replace(/\\/g, "/");
         const fileass = encodeURI(absolutePath);
         let resultEntry = results.find((x) => x.uri === id);
 
         console.log(
-          `Assigning ${fileass} the ${relatedPathToSchemaMapping.path} schema`
+          `Assigning ${fileass} the ${relatedPathToSchemaMapping.path} schema`,
         );
 
         if (!resultEntry) {
